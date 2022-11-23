@@ -1,0 +1,30 @@
+OutputFile: /media/data/gwm17/anasensim.root
+begin_target
+	Density(g/cm^3): 80.0
+	begin_elements (Z, A, Stoich.)
+        element 1 2 2
+	end_elements
+end_target
+begin_chain
+	NumberOfSamples: 1000000
+	InitialBeamEnergy(MeV): 17.4
+	ReactionBeamEnergy(MeV): 0.97
+	begin_step
+		Type: Reaction
+		begin_nuclei
+			1 2
+			4 7
+			2 4
+		end_nuclei
+		ResidualExcitationMean(MeV): 0.0
+		ResidualExcitationSigma(MeV): 0.0
+	end_step
+	begin_step
+		Type: Decay
+		begin_nuclei
+			3 5
+			1 2
+		end_nuclei
+		ResidualExcitationMean(MeV): 0.0
+		ResidualExcitationSigma(MeV): 0.0
+end_chain
