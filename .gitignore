@@ -1,0 +1,10 @@
+bin/
+build/
+lib/
+.vscode/
+.vs/
+
+AnasenSim
+*.so
+*.o
+*.pcm
