@@ -30,7 +30,7 @@ namespace AnasenSim {
 	class ReactionSystem
 	{
 	public:
-		ReactionSystem(const Target& target);
+		ReactionSystem(const SystemParameters& params);
 		virtual ~ReactionSystem();
 
 		virtual void RunSystem() = 0;
@@ -42,14 +42,7 @@ namespace AnasenSim {
 	protected:
 		virtual void SetSystemEquation() = 0;
 
-		void AddExcitationDistribution(double mean, double sigma);
-		
-		Target m_target;
-	
-		//Sampling information
-		std::vector<std::normal_distribution<double>> m_exDistributions;
-		std::uniform_real_distribution<double> m_cosThetaDist;
-		std::uniform_real_distribution<double> m_phiDist;
+		SystemParameters m_params;
 
 		bool m_isValid;
 
@@ -57,6 +50,10 @@ namespace AnasenSim {
 		std::vector<Nucleus> m_nuclei;
 
 		static constexpr double s_deg2rad = M_PI/180.0;
+		static constexpr double s_cosThetaMin = -1.0;
+		static constexpr double s_cosThetaMax = 1.0;
+		static constexpr double s_phiMin = 0.0;
+		static constexpr double s_phiMax = 2.0*M_PI;
 	};
 
 	ReactionSystem* CreateSystem(const SystemParameters& params);

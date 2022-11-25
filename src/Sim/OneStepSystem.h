@@ -17,7 +17,6 @@ namespace AnasenSim {
 		void Init(const std::vector<StepParameters>& params);
 		virtual void SetSystemEquation() override;
 
-		double m_rxnBeamEnergy;
 		double m_rxnPathLength;
 		double m_beamStraggling;
 			

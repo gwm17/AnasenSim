@@ -47,10 +47,10 @@ namespace AnasenSim {
 
 		bool isDetected = false;
 		double siliconDetKE = 0.0; //MeV
-		double siliconDetPhi = 0.0; //rad
+		ROOT::Math::XYZPoint siVector;
         double pcDetE = 0.0; //MeV
-        double pcDetPhi = 0.0; //rad
-        double detectedTheta = 0.0; //rad
+		ROOT::Math::XYZPoint pcVector;
+		std::string siDetectorName = "";
 	};
 
 	bool EnforceDictionaryLinked();

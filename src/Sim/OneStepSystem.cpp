@@ -6,12 +6,12 @@
 namespace AnasenSim {
 
 	OneStepSystem::OneStepSystem(const SystemParameters& params) :
-		ReactionSystem(params.target), m_rxnBeamEnergy(params.rxnBeamEnergy)
+		ReactionSystem(params)
 	{
-		int zp = params.stepParams[0].Z[1];
-		int ap = params.stepParams[0].A[1];
-		m_rxnPathLength = m_target.GetPathLength(zp, ap, params.initialBeamEnergy, m_rxnBeamEnergy);
-		m_beamStraggling = m_target.GetAngularStraggling(zp, ap, params.initialBeamEnergy, m_rxnPathLength);
+		int zp = m_params.stepParams[0].Z[1];
+		int ap = m_params.stepParams[0].A[1];
+		m_rxnPathLength = m_params.target.GetPathLength(zp, ap, m_params.initialBeamEnergy, m_params.rxnBeamEnergy);
+		m_beamStraggling = m_params.target.GetAngularStraggling(zp, ap, m_params.initialBeamEnergy, m_rxnPathLength);
 		m_nuclei.resize(4);
 		Init(params.stepParams);
 	}
@@ -43,9 +43,6 @@ namespace AnasenSim {
 		m_step1.BindNuclei(&(m_nuclei[0]), &(m_nuclei[1]), &(m_nuclei[2]), &(m_nuclei[3]));
 		SetSystemEquation();
 
-		//Set sampling parameters
-
-		AddExcitationDistribution(step1Params.meanResidualEx, step1Params.sigmaResidualEx);
 	}
 	
 	void OneStepSystem::SetSystemEquation()
@@ -68,13 +65,11 @@ namespace AnasenSim {
 		static ROOT::Math::XYZPoint rxnPoint;
 
 		//Sample parameters
-		std::mt19937& gen = RandomGenerator::GetInstance().GetGenerator();
-		rxnTheta = std::acos(m_cosThetaDist(gen));
-		rxnPhi = m_phiDist(gen);
-		residEx = (m_exDistributions[0])(gen);
-		std::normal_distribution<double> beamDist(0.0, m_beamStraggling);
-		beamTheta = beamDist(gen);
-		beamPhi = m_phiDist(gen);
+		rxnTheta = std::acos(RandomGenerator::GetUniformReal(s_cosThetaMin, s_cosThetaMax));
+		rxnPhi = RandomGenerator::GetUniformReal(s_phiMin, s_phiMax);
+		residEx = RandomGenerator::GetNormal(m_params.stepParams[0].meanResidualEx, m_params.stepParams[0].sigmaResidualEx);
+		beamTheta = RandomGenerator::GetNormal(0.0, m_beamStraggling);
+		beamPhi = RandomGenerator::GetUniformReal(s_phiMin, s_phiMax);
 		
 		rxnPoint.SetXYZ(std::sin(beamTheta)*std::cos(beamPhi)*m_rxnPathLength,
 						std::sin(beamTheta)*std::sin(beamPhi)*m_rxnPathLength,
@@ -83,11 +78,14 @@ namespace AnasenSim {
 		m_step1.SetPolarRxnAngle(rxnTheta);
 		m_step1.SetAzimRxnAngle(rxnPhi);
 		m_step1.SetExcitation(residEx);
-		m_step1.SetBeamKE(m_rxnBeamEnergy);
+		m_step1.SetBeamKE(m_params.rxnBeamEnergy);
 		m_step1.SetBeamTheta(beamTheta);
 		m_step1.SetBeamPhi(beamPhi);
 		
 		m_step1.Calculate();
+
+		for(auto& nucleus : m_nuclei)
+			nucleus.rxnPoint = rxnPoint;
 	}
 
 }

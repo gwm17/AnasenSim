@@ -6,10 +6,10 @@
 namespace AnasenSim {
 
 	DecaySystem::DecaySystem(const SystemParameters& params) :
-		ReactionSystem(params.target)
+		ReactionSystem(params)
 	{
 		m_nuclei.resize(3);
-		Init(params.stepParams);
+		Init(m_params.stepParams);
 	}
 	
 	DecaySystem::~DecaySystem() {}
@@ -35,10 +35,6 @@ namespace AnasenSim {
 
 		m_step1.BindNuclei(&(m_nuclei[0]), nullptr, &(m_nuclei[1]), &(m_nuclei[2]));
 		SetSystemEquation();
-
-		
-		AddExcitationDistribution(step1Params.meanResidualEx, step1Params.sigmaResidualEx);
-
 		return;
 	}
 	
@@ -53,10 +49,10 @@ namespace AnasenSim {
 	
 	void DecaySystem::RunSystem()
 	{
-		std::mt19937& gen = RandomGenerator::GetInstance().GetGenerator();
-		double rxnTheta = std::acos(m_cosThetaDist(gen));
-		double rxnPhi = m_phiDist(gen);
-		double ex = m_exDistributions[0](gen);
+		double rxnTheta = std::acos(RandomGenerator::GetUniformReal(s_cosThetaMin, s_cosThetaMax));
+		double rxnPhi = RandomGenerator::GetUniformReal(s_phiMin, s_phiMax);
+		double ex = RandomGenerator::GetNormal(m_params.stepParams[0].meanResidualEx,
+											   m_params.stepParams[0].sigmaResidualEx);
 
 		m_step1.SetPolarRxnAngle(rxnTheta);
 		m_step1.SetAzimRxnAngle(rxnPhi);
