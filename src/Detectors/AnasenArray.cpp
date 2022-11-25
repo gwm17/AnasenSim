@@ -1,4 +1,5 @@
 #include "AnasenArray.h"
+#include "PCDetector.h"
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -6,7 +7,7 @@
 namespace AnasenSim {
 
 	AnasenArray::AnasenArray(const Target& gas) :
-		m_detectorEloss({14}, {28}, {1}, s_detectorDensity), m_gasEloss(gas)
+		m_detectorEloss({14}, {28}, {1}, s_detectorDensity), m_gasEloss(gas), m_nullPoint(0., 0., 0.)
 	{
 		for(int i=0; i<s_nSX3PerBarrel; i++)
 		{
@@ -186,17 +187,22 @@ namespace AnasenSim {
 	{
 		static double thetaIncident;
 		static double effectiveThickness;
+		static double energyAtSi;
 		for(int i=0; i<s_nSX3PerBarrel; i++)
 		{
 			auto result = m_Ring1[i].GetChannelRatio(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi());
 			if(result.front_strip_index != -1) 
 			{
+				nucleus.pcVector = PCDetector::AssignPC(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi(), nucleus.Z);
 				nucleus.isDetected = true;
 				nucleus.siVector = m_Ring1[i].GetHitCoordinates(result.front_strip_index, result.front_ratio);
+
 				thetaIncident = std::acos(nucleus.siVector.Dot(m_Ring1[i].GetNormRotated())/nucleus.siVector.R());
 				effectiveThickness = s_detectorThickness_cm/std::fabs(std::cos(thetaIncident));
+				nucleus.pcDetE = m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.pcVector - nucleus.rxnPoint).R());
+				energyAtSi = nucleus.GetKE() - m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.siVector - nucleus.rxnPoint).R());
+				nucleus.siliconDetKE = m_detectorEloss.GetEnergyLoss(nucleus.Z, nucleus.A, energyAtSi, effectiveThickness);
 
-				nucleus.siliconDetKE = m_detectorEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), effectiveThickness);
 				nucleus.siDetectorName = "R1";
 				return;
 			}
@@ -207,18 +213,23 @@ namespace AnasenSim {
 	{
 		static double thetaIncident;
 		static double effectiveThickness;
+		static double energyAtSi;
 		for(int i=0; i<s_nSX3PerBarrel; i++)
 		{
 			auto result = m_Ring2[i].GetChannelRatio(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi());
 			if(result.front_strip_index != -1) 
 			{
+				nucleus.pcVector = PCDetector::AssignPC(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi(), nucleus.Z);
 				nucleus.isDetected = true;
 				nucleus.siVector = m_Ring2[i].GetHitCoordinates(result.front_strip_index, result.front_ratio);
+
 				thetaIncident = std::acos(nucleus.siVector.Dot(m_Ring2[i].GetNormRotated())/nucleus.siVector.R());
 				effectiveThickness = s_detectorThickness_cm/std::fabs(std::cos(thetaIncident));
+				nucleus.pcDetE = m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.pcVector - nucleus.rxnPoint).R());
+				energyAtSi = nucleus.GetKE() - m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.siVector - nucleus.rxnPoint).R());
+				nucleus.siliconDetKE = m_detectorEloss.GetEnergyLoss(nucleus.Z, nucleus.A, energyAtSi, effectiveThickness);
 
-				nucleus.siliconDetKE = m_detectorEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), effectiveThickness);
-				nucleus.siDetectorName = "R1";
+				nucleus.siDetectorName = "R2";
 				return;
 			}
 		}
@@ -228,16 +239,20 @@ namespace AnasenSim {
 	{
 		double thetaIncident;
 		double effectiveThickness;
+		static double energyAtSi;
 		for(int i=0; i<s_nQQQ; i++)
 		{
 			auto result = m_forwardQQQs[i].GetTrajectoryRingWedge(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi());
 			if(result.first != -1) 
 			{
+				nucleus.pcVector = PCDetector::AssignPC(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi(), nucleus.Z);
 				nucleus.isDetected = true;
 				nucleus.siVector = m_forwardQQQs[i].GetHitCoordinates(result.first, result.second);
+
 				thetaIncident = std::acos(nucleus.siVector.Dot(m_forwardQQQs[i].GetNorm())/nucleus.siVector.R());
 				effectiveThickness = s_detectorThickness_cm / std::fabs(std::cos(thetaIncident));
-
+				nucleus.pcDetE = m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.pcVector - nucleus.rxnPoint).R());
+				energyAtSi = nucleus.GetKE() - m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.siVector - nucleus.rxnPoint).R());
 				nucleus.siliconDetKE = m_detectorEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), effectiveThickness);
 				nucleus.siDetectorName = "FQQQ";
 				return;

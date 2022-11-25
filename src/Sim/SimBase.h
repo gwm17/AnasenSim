@@ -10,7 +10,7 @@
 
 namespace AnasenSim {
 
-    Nucleus CreateNucleus(uint32_t z, uint32_t a)
+    static Nucleus CreateNucleus(uint32_t z, uint32_t a)
     {
         Nucleus nuc;
         nuc.Z = z;

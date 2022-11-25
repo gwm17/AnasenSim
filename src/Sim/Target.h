@@ -25,7 +25,7 @@ namespace AnasenSim {
 	
 	public:
 	 	Target() = default;
-	 	Target(const std::vector<int>& z, const std::vector<int>& a, const std::vector<int>& stoich, double density);
+	 	Target(const std::vector<uint32_t>& z, const std::vector<uint32_t>& a, const std::vector<int>& stoich, double density);
 	 	~Target();
 
 	 	double GetEnergyLoss(int zp, int ap, double startEnergy, double pathLength);

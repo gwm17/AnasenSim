@@ -30,9 +30,12 @@ target_sources(AnasenSim PRIVATE
     Detectors/QQQDetector.cpp
     Detectors/SX3Detector.h
     Detectors/SX3Detector.cpp
+    Detectors/PCDetector.h
+    Detectors/PCDetector.cpp
     Detectors/AnasenArray.h
     Detectors/AnasenArray.cpp
+    main.cpp
 )
 
-target_link_libraries(AnasenSim PRIVATE catima SimDict ${ROOT_LIBS})
+target_link_libraries(AnasenSim PRIVATE catima ${ROOT_LIBS} SimDict)
 set_target_properties(AnasenSim PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${ASIM_BINARY_DIR})

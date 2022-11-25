@@ -15,6 +15,7 @@ namespace AnasenSim {
 
         void Run();
 
+        bool IsInit()  const { return m_isInit; }
     private:
         void InitConfig(const std::string& config);
 
@@ -23,7 +24,7 @@ namespace AnasenSim {
         std::string m_outputName = "";
         uint64_t m_nSamples = 0;
         Target m_target;
-        std::unique_ptr<ReactionSystem> m_system;
+        ReactionSystem* m_system;
     };
 }
 

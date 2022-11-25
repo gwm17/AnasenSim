@@ -11,13 +11,14 @@
 namespace AnasenSim {
 
     Application::Application(const std::string& config) :
-        m_isInit(false)
+        m_isInit(false), m_system(nullptr)
     {
         InitConfig(config);
     }
 
     Application::~Application()
     {
+		delete m_system;
     }
 
     void Application::InitConfig(const std::string& config)
@@ -34,8 +35,10 @@ namespace AnasenSim {
 		configFile>>junk>>m_outputName;
 
 		double density;
-		std::vector<int> avec, zvec, svec;
-		int z, a, s;
+		std::vector<uint32_t> avec, zvec;
+		std::vector<int> svec;
+		uint32_t z, a;
+		int s;
 		
 		configFile>>junk>>junk>>density;
 		avec.clear(); zvec.clear(); svec.clear();
@@ -105,7 +108,7 @@ namespace AnasenSim {
 			}
 		}
 
-		m_system = std::make_unique<ReactionSystem>(CreateSystem(params));
+		m_system = CreateSystem(params);
 		if(m_system == nullptr || !m_system->IsValid())
 		{
 			std::cerr<<"Failure to parse reaction system... configuration not loaded."<<std::endl;

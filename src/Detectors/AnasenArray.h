@@ -35,6 +35,8 @@ namespace AnasenSim {
 		Target m_detectorEloss;
 		Target m_gasEloss;
 
+		ROOT::Math::XYZPoint m_nullPoint;
+
 		//AnasenDeadChannelMap dmap;
 
 		/**** ANASEN geometry constants *****/
