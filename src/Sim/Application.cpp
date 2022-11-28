@@ -11,14 +11,19 @@
 namespace AnasenSim {
 
     Application::Application(const std::string& config) :
-        m_isInit(false), m_system(nullptr)
+        m_isInit(false), m_system(nullptr), m_array(nullptr)
     {
+		if(!EnforceDictionaryLinked())
+		{
+			std::cerr << "Dictionary error!" << std::endl;
+		}
         InitConfig(config);
     }
 
     Application::~Application()
     {
 		delete m_system;
+		delete m_array;
     }
 
     void Application::InitConfig(const std::string& config)
@@ -109,6 +114,7 @@ namespace AnasenSim {
 		}
 
 		m_system = CreateSystem(params);
+		m_array = new AnasenArray(params.target);
 		if(m_system == nullptr || !m_system->IsValid())
 		{
 			std::cerr<<"Failure to parse reaction system... configuration not loaded."<<std::endl;

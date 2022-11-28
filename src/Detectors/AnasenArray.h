@@ -21,16 +21,16 @@ namespace AnasenSim {
 		//void SetDeadChannelMap(const std::string& filename) { dmap.LoadMapfile(filename); }
 
 	private:
-		void IsRing1(Nucleus& nucleus);
-		void IsRing2(Nucleus& nucleus);
+		void IsBarrel1(Nucleus& nucleus);
+		void IsBarrel2(Nucleus& nucleus);
 		void IsQQQ(Nucleus& nucleus);
 
 		bool IsDoubleEqual(double x, double y) { return std::fabs(x-y) < s_epsilon ? true : false; };
 
 
-		std::vector<SX3Detector> m_Ring1;
-		std::vector<SX3Detector> m_Ring2;
-		std::vector<QQQDetector> m_forwardQQQs;
+		std::vector<SX3Detector> m_barrel1;
+		std::vector<SX3Detector> m_barrel2;
+		std::vector<QQQDetector> m_qqq;
 
 		Target m_detectorEloss;
 		Target m_gasEloss;
@@ -44,11 +44,12 @@ namespace AnasenSim {
 		static constexpr int s_nSX3PerBarrel = 12;
 		static constexpr int s_nQQQ = 4;
 		static constexpr double s_sx3Length = 0.075;
-		static constexpr double s_barrelGap = 0.0254;
-		static constexpr double s_sx3FrameGap = 0.049; //0.049 is base gap due to frames
-		static constexpr double s_barrel1Z = s_sx3Length/2.0 + s_sx3FrameGap + s_barrelGap/2.0;
-		static constexpr double s_barrel2Z = (-1.0)*(s_barrelGap/2.0 + s_sx3Length/2.0);
-		static constexpr double s_qqqZ = 0.0125 + s_sx3Length + s_sx3FrameGap + s_barrelGap/2.0;
+		static constexpr double s_barrelGap = 0.0254;  //Space between edge of frames of each SX3 barrel
+		static constexpr double s_sx3FrameGap = 0.049; //0.049 is empty space due to width of SX3 barrel frame
+		static constexpr double s_totalLength = 0.554; //total length of the ANASEN chamber
+		static constexpr double s_qqqZ = s_totalLength;
+		static constexpr double s_barrel1Z = s_qqqZ - (0.0125 + s_sx3Length * 0.5);
+		static constexpr double s_barrel2Z = s_barrel1Z - (s_sx3Length + s_barrelGap + s_sx3FrameGap * 2.0);
 		static constexpr double s_qqqZList[4] = {s_qqqZ, s_qqqZ, s_qqqZ, s_qqqZ};
 		static constexpr double s_qqqPhiList[4] = {5.49779, 0.785398, 2.35619, 3.92699};
 		static constexpr double s_barrelRhoList[12] = {0.0890601, 0.0889871, 0.0890354, 0.0890247, 0.0890354, 0.0890354, 0.0890247,
@@ -59,8 +60,8 @@ namespace AnasenSim {
 
 		static constexpr double s_energyThreshold = 0.6; //MeV
 		static constexpr double s_deg2rad = M_PI/180.0;
-		static constexpr double s_detectorDensity = 1000 * 1e-4 * 2.3926 * 1e6; //thickness in um -> eff thickness in ug/cm^2 for detector
-		static constexpr double s_detectorThickness_cm = 0.1; //cm
+		static constexpr double s_detectorDensity = 2.33; //g/cm^3, Si crystal
+		static constexpr double s_detectorThickness = 0.001; //m
 	};
 
 }

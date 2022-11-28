@@ -15,7 +15,7 @@ Written by G.W. McCann Aug. 2020
 
 namespace AnasenSim {
 
-	/*Targets must be of known thickness*/
+	//z,a: istope list of material compound, stoich: compound stoichometry, density: material density in g/cm^3
 	Target::Target(const std::vector<uint32_t>& z, const std::vector<uint32_t>& a, const std::vector<int>& stoich, double density)
 	{
 		MassLookup& masses = MassLookup::GetInstance();
@@ -23,30 +23,36 @@ namespace AnasenSim {
 		{
 			m_material.add_element(masses.FindMassU(z[i], a[i]), z[i], stoich[i]);
 		}
-		m_material.density(density);
+		m_material.density(density); //g/cm^3
 	}
 	
 	Target::~Target() {}
 	
 	/*Calculates energy loss for travelling all the way through the target*/
+	//ZP, AP: projectile isotope, startEnergy: MeV, pathLength: m
+	//return eloss in MeV
 	double Target::GetEnergyLoss(int zp, int ap, double startEnergy, double pathLength)
 	{
 		catima::Projectile proj(MassLookup::GetInstance().FindMassU(zp, ap), zp, 0.0, 0.0);
 		proj.T = startEnergy/proj.A;
-		m_material.thickness_cm(pathLength); //Takes in a path length and calculates density corrected thickness to thickness param
+		m_material.thickness_cm(pathLength * 10.0); //Takes in a path length and calculates density corrected thickness to thickness param
 		return catima::integrate_energyloss(proj, m_material);
 	}
 
 	/*Calculates reverse energy loss for travelling all the way through the target*/
+	//ZP, AP: projectile isotope, finalEnergy: MeV, pathLength: m
+	//return eloss in MeV
 	double Target::GetReverseEnergyLoss(int zp, int ap, double finalEnergy, double pathLength)
 	{
 		catima::Projectile proj(MassLookup::GetInstance().FindMassU(zp, ap), zp, 0.0, 0.0);
 		proj.T = finalEnergy/proj.A;
-		m_material.thickness_cm(pathLength);
+		m_material.thickness_cm(pathLength * 10.0);
 		return catima::reverse_integrate_energyloss(proj, m_material);
 	}
 
 	//Use golden section search to find path length to reach finalEnergy
+	//ZP, AP: projectile isotope, startEnergy: MeV, finalEnergy: MeV
+	//return pathlength in m
 	double Target::GetPathLength(int zp, int ap, double startEnergy, double finalEnergy)
 	{
 		static double goldenRatioInv = 1.0/((std::sqrt(5.0) + 1.0) * 0.5);
@@ -92,14 +98,15 @@ namespace AnasenSim {
 			testLow = boundLow + (boundHigh - boundLow) * goldenRatioInv;
 		}
 
-		return (boundHigh - boundLow) * 0.5;
+		return (boundHigh - boundLow) * 0.5 * 0.1; //convert to meters
 	}
 
+	//ZP, AP: projectile isotope, energy: MeV, pathLength: meters
 	double Target::GetAngularStraggling(int zp, int ap, double energy, double pathLength)
 	{
 		catima::Projectile proj(MassLookup::GetInstance().FindMassU(zp, ap), zp, 0.0, 0.0);
 		proj.T = energy/proj.A;
-		m_material.thickness_cm(pathLength);
+		m_material.thickness_cm(pathLength * 10.0);
 
 		return catima::angular_straggling(proj, m_material);
 	}

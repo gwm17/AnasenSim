@@ -1,4 +1,5 @@
 add_subdirectory(Dict)
+add_subdirectory(Plotter)
 add_executable(AnasenSim)
 
 target_include_directories(AnasenSim

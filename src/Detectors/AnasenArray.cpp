@@ -11,15 +11,15 @@ namespace AnasenSim {
 	{
 		for(int i=0; i<s_nSX3PerBarrel; i++)
 		{
-			m_Ring1.emplace_back(s_barrelPhiList[i], s_barrel1Z, s_barrelRhoList[i]);
-			m_Ring1[i].SetPixelSmearing(true);
-			m_Ring2.emplace_back(s_barrelPhiList[i], s_barrel2Z, s_barrelRhoList[i]);
-			m_Ring2[i].SetPixelSmearing(true);
+			m_barrel1.emplace_back(s_barrelPhiList[i], s_barrel1Z, s_barrelRhoList[i]);
+			m_barrel1[i].SetPixelSmearing(true);
+			m_barrel2.emplace_back(s_barrelPhiList[i], s_barrel2Z, s_barrelRhoList[i]);
+			m_barrel2[i].SetPixelSmearing(true);
 		}
 		for(int i=0; i<s_nQQQ; i++)
 		{
-			m_forwardQQQs.emplace_back(s_qqqPhiList[i], s_qqqZList[i]);
-			m_forwardQQQs[i].SetSmearing(true);
+			m_qqq.emplace_back(s_qqqPhiList[i], s_qqqZList[i]);
+			m_qqq[i].SetSmearing(true);
 		}
 	}
 
@@ -39,16 +39,16 @@ namespace AnasenSim {
 			{
 				for(int k=0; k<4; k++)
 				{
-					coords = m_Ring1[i].GetRotatedFrontStripCoordinates(j, k);
+					coords = m_barrel1[i].GetRotatedFrontStripCoordinates(j, k);
 					x.push_back(coords.X());
 					y.push_back(coords.Y());
 					z.push_back(coords.Z());
-					coords = m_Ring1[i].GetRotatedBackStripCoordinates(j, k);
+					coords = m_barrel1[i].GetRotatedBackStripCoordinates(j, k);
 					x.push_back(coords.X());
 					y.push_back(coords.Y());
 					z.push_back(coords.Z());
 				}
-				coords = m_Ring1[i].GetHitCoordinates(j, 0);
+				coords = m_barrel1[i].GetHitCoordinates(j, 0);
 				cx.push_back(coords.X());
 				cy.push_back(coords.Y());
 				cz.push_back(coords.Z());
@@ -60,16 +60,16 @@ namespace AnasenSim {
 			{
 				for(int k=0; k<4; k++)
 				{
-					coords = m_Ring2[i].GetRotatedFrontStripCoordinates(j, k);
+					coords = m_barrel2[i].GetRotatedFrontStripCoordinates(j, k);
 					x.push_back(coords.X());
 					y.push_back(coords.Y());
 					z.push_back(coords.Z());
-					coords = m_Ring2[i].GetRotatedBackStripCoordinates(j, k);
+					coords = m_barrel2[i].GetRotatedBackStripCoordinates(j, k);
 					x.push_back(coords.X());
 					y.push_back(coords.Y());
 					z.push_back(coords.Z());
 				}
-				coords = m_Ring2[i].GetHitCoordinates(j, 0);
+				coords = m_barrel2[i].GetHitCoordinates(j, 0);
 				cx.push_back(coords.X());
 				cy.push_back(coords.Y());
 				cz.push_back(coords.Z());
@@ -81,18 +81,18 @@ namespace AnasenSim {
 			{
 				for(int k=0; k<4; k++)
 				{
-					coords = m_forwardQQQs[i].GetRingCoordinates(j, k);
+					coords = m_qqq[i].GetRingCoordinates(j, k);
 					x.push_back(coords.X());
 					y.push_back(coords.Y());
 					z.push_back(coords.Z());
-					coords = m_forwardQQQs[i].GetWedgeCoordinates(j, k);
+					coords = m_qqq[i].GetWedgeCoordinates(j, k);
 					x.push_back(coords.X());
 					y.push_back(coords.Y());
 					z.push_back(coords.Z());
 				}
 				for(int k=0; k<16; k++)
 				{
-					coords = m_forwardQQQs[i].GetHitCoordinates(j, k);
+					coords = m_qqq[i].GetHitCoordinates(j, k);
 					cx.push_back(coords.X());
 					cy.push_back(coords.Y());
 					cz.push_back(coords.Z());
@@ -118,19 +118,19 @@ namespace AnasenSim {
 		for(int i=0; i<s_nSX3PerBarrel; i++)
 		{
 			for(int j=0; j<4; j++)
-				r1_points.push_back(m_Ring1[i].GetHitCoordinates(j, 0));
+				r1_points.push_back(m_barrel1[i].GetHitCoordinates(j, 0));
 		}
 		for(int i=0; i<s_nSX3PerBarrel; i++)
 		{
 			for(int j=0; j<4; j++)
-				r2_points.push_back(m_Ring2[i].GetHitCoordinates(j, 0));
+				r2_points.push_back(m_barrel2[i].GetHitCoordinates(j, 0));
 		}
 		for(int i=0; i<s_nQQQ; i++)
 		{
 			for(int j=0; j<16; j++)
 			{
 				for(int k=0; k<16; k++)
-					fqqq_points.push_back(m_forwardQQQs[i].GetHitCoordinates(j, k));
+					fqqq_points.push_back(m_qqq[i].GetHitCoordinates(j, k));
 			}
 		}
 
@@ -139,7 +139,7 @@ namespace AnasenSim {
 		ROOT::Math::XYZPoint coords;
 		for(auto& point : r1_points)
 		{
-			for(auto& sx3 : m_Ring1)
+			for(auto& sx3 : m_barrel1)
 			{
 				auto result = sx3.GetChannelRatio({0., 0., 0.}, point.Theta(), point.Phi());
 				coords = sx3.GetHitCoordinates(result.front_strip_index, result.front_ratio);
@@ -152,7 +152,7 @@ namespace AnasenSim {
 		}
 		for(auto& point : r2_points)
 		{
-			for(auto& sx3 : m_Ring2)
+			for(auto& sx3 : m_barrel2)
 			{
 				auto result = sx3.GetChannelRatio({0., 0., 0.}, point.Theta(), point.Phi());
 				coords = sx3.GetHitCoordinates(result.front_strip_index, result.front_ratio);
@@ -165,7 +165,7 @@ namespace AnasenSim {
 		}
 		for(auto& point : fqqq_points)
 		{
-			for(auto& qqq : m_forwardQQQs)
+			for(auto& qqq : m_qqq)
 			{
 				auto result = qqq.GetTrajectoryRingWedge({0., 0., 0.}, point.Theta(), point.Phi());
 				coords = qqq.GetHitCoordinates(result.first, result.second);
@@ -183,22 +183,22 @@ namespace AnasenSim {
 
 	}
 
-	void AnasenArray::IsRing1(Nucleus& nucleus)
+	void AnasenArray::IsBarrel1(Nucleus& nucleus)
 	{
 		static double thetaIncident;
 		static double effectiveThickness;
 		static double energyAtSi;
 		for(int i=0; i<s_nSX3PerBarrel; i++)
 		{
-			auto result = m_Ring1[i].GetChannelRatio(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi());
+			auto result = m_barrel1[i].GetChannelRatio(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi());
 			if(result.front_strip_index != -1) 
 			{
 				nucleus.pcVector = PCDetector::AssignPC(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi(), nucleus.Z);
 				nucleus.isDetected = true;
-				nucleus.siVector = m_Ring1[i].GetHitCoordinates(result.front_strip_index, result.front_ratio);
+				nucleus.siVector = m_barrel1[i].GetHitCoordinates(result.front_strip_index, result.front_ratio);
 
-				thetaIncident = std::acos(nucleus.siVector.Dot(m_Ring1[i].GetNormRotated())/nucleus.siVector.R());
-				effectiveThickness = s_detectorThickness_cm/std::fabs(std::cos(thetaIncident));
+				thetaIncident = std::acos(nucleus.siVector.Dot(m_barrel1[i].GetNormRotated())/nucleus.siVector.R());
+				effectiveThickness = s_detectorThickness/std::fabs(std::cos(thetaIncident));
 				nucleus.pcDetE = m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.pcVector - nucleus.rxnPoint).R());
 				energyAtSi = nucleus.GetKE() - m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.siVector - nucleus.rxnPoint).R());
 				nucleus.siliconDetKE = m_detectorEloss.GetEnergyLoss(nucleus.Z, nucleus.A, energyAtSi, effectiveThickness);
@@ -209,22 +209,22 @@ namespace AnasenSim {
 		}
 	}
 
-	void AnasenArray::IsRing2(Nucleus& nucleus)
+	void AnasenArray::IsBarrel2(Nucleus& nucleus)
 	{
 		static double thetaIncident;
 		static double effectiveThickness;
 		static double energyAtSi;
 		for(int i=0; i<s_nSX3PerBarrel; i++)
 		{
-			auto result = m_Ring2[i].GetChannelRatio(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi());
+			auto result = m_barrel2[i].GetChannelRatio(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi());
 			if(result.front_strip_index != -1) 
 			{
 				nucleus.pcVector = PCDetector::AssignPC(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi(), nucleus.Z);
 				nucleus.isDetected = true;
-				nucleus.siVector = m_Ring2[i].GetHitCoordinates(result.front_strip_index, result.front_ratio);
+				nucleus.siVector = m_barrel2[i].GetHitCoordinates(result.front_strip_index, result.front_ratio);
 
-				thetaIncident = std::acos(nucleus.siVector.Dot(m_Ring2[i].GetNormRotated())/nucleus.siVector.R());
-				effectiveThickness = s_detectorThickness_cm/std::fabs(std::cos(thetaIncident));
+				thetaIncident = std::acos(nucleus.siVector.Dot(m_barrel2[i].GetNormRotated())/nucleus.siVector.R());
+				effectiveThickness = s_detectorThickness/std::fabs(std::cos(thetaIncident));
 				nucleus.pcDetE = m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.pcVector - nucleus.rxnPoint).R());
 				energyAtSi = nucleus.GetKE() - m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.siVector - nucleus.rxnPoint).R());
 				nucleus.siliconDetKE = m_detectorEloss.GetEnergyLoss(nucleus.Z, nucleus.A, energyAtSi, effectiveThickness);
@@ -242,15 +242,15 @@ namespace AnasenSim {
 		static double energyAtSi;
 		for(int i=0; i<s_nQQQ; i++)
 		{
-			auto result = m_forwardQQQs[i].GetTrajectoryRingWedge(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi());
+			auto result = m_qqq[i].GetTrajectoryRingWedge(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi());
 			if(result.first != -1) 
 			{
 				nucleus.pcVector = PCDetector::AssignPC(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi(), nucleus.Z);
 				nucleus.isDetected = true;
-				nucleus.siVector = m_forwardQQQs[i].GetHitCoordinates(result.first, result.second);
+				nucleus.siVector = m_qqq[i].GetHitCoordinates(result.first, result.second);
 
-				thetaIncident = std::acos(nucleus.siVector.Dot(m_forwardQQQs[i].GetNorm())/nucleus.siVector.R());
-				effectiveThickness = s_detectorThickness_cm / std::fabs(std::cos(thetaIncident));
+				thetaIncident = std::acos(nucleus.siVector.Dot(m_qqq[i].GetNorm())/nucleus.siVector.R());
+				effectiveThickness = s_detectorThickness / std::fabs(std::cos(thetaIncident));
 				nucleus.pcDetE = m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.pcVector - nucleus.rxnPoint).R());
 				energyAtSi = nucleus.GetKE() - m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.siVector - nucleus.rxnPoint).R());
 				nucleus.siliconDetKE = m_detectorEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), effectiveThickness);
@@ -262,13 +262,15 @@ namespace AnasenSim {
 
 	void AnasenArray::IsDetected(Nucleus& nucleus)
 	{
-		if(nucleus.GetKE() <= s_energyThreshold)
+		if(nucleus.GetKE() <= s_energyThreshold) //Below silicon detection threshold
+			return;
+		else if(nucleus.rxnPoint.Z() > s_totalLength) //reaction occurs outside the detector
 			return;
 
 		if(!nucleus.isDetected)
-			IsRing1(nucleus);
+			IsBarrel1(nucleus);
 		if(!nucleus.isDetected)
-			IsRing2(nucleus);
+			IsBarrel2(nucleus);
 		if(!nucleus.isDetected)
 			IsQQQ(nucleus);
 	}

@@ -2,6 +2,7 @@
 #define SIM_APP_H
 
 #include "ReactionSystem.h"
+#include "Detectors/AnasenArray.h"
 #include <string>
 #include <vector>
 
@@ -25,6 +26,8 @@ namespace AnasenSim {
         uint64_t m_nSamples = 0;
         Target m_target;
         ReactionSystem* m_system;
+        AnasenArray* m_array;
+
     };
 }
 
