@@ -29,9 +29,9 @@ namespace AnasenSim {
 		int zr = step1Params.Z[0] - step1Params.Z[1];
 		int ar = step1Params.A[0] - step1Params.A[1];
 
-		m_nuclei[0] = CreateNucleus(step1Params.Z[0], step1Params.A[0]); //target
-		m_nuclei[1] = CreateNucleus(step1Params.Z[1], step1Params.A[1]); //breakup1
-		m_nuclei[2] = CreateNucleus(zr, ar); //breakup2
+		m_nuclei[0] = CreateNucleus(step1Params.Z[0], step1Params.A[0], Nucleus::ReactionRole::Target); //target
+		m_nuclei[1] = CreateNucleus(step1Params.Z[1], step1Params.A[1], Nucleus::ReactionRole::Breakup1); //breakup1
+		m_nuclei[2] = CreateNucleus(zr, ar, Nucleus::ReactionRole::Breakup2); //breakup2
 
 		m_step1.BindNuclei(&(m_nuclei[0]), nullptr, &(m_nuclei[1]), &(m_nuclei[2]));
 		SetSystemEquation();

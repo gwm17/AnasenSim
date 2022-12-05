@@ -25,9 +25,6 @@ namespace AnasenSim {
 		void IsBarrel2(Nucleus& nucleus);
 		void IsQQQ(Nucleus& nucleus);
 
-		bool IsDoubleEqual(double x, double y) { return std::fabs(x-y) < s_epsilon ? true : false; };
-
-
 		std::vector<SX3Detector> m_barrel1;
 		std::vector<SX3Detector> m_barrel2;
 		std::vector<QQQDetector> m_qqq;

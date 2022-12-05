@@ -1,7 +1,7 @@
 #ifndef PLOTTER_H
 #define PLOTTER_H
 
-#include "Nucleus.h"
+#include "Dict/Nucleus.h"
 
 #include <string>
 #include <memory>
@@ -10,6 +10,22 @@
 class TObject;
 
 namespace AnasenSim {
+
+    static std::string ReactionRoleToString(Nucleus::ReactionRole role)
+    {
+        switch(role)
+        {
+            case Nucleus::ReactionRole::Target: return "Target";
+            case Nucleus::ReactionRole::Projectile: return "Projectile";
+            case Nucleus::ReactionRole::Ejectile: return "Ejectile";
+            case Nucleus::ReactionRole::Residual: return "Residual";
+            case Nucleus::ReactionRole::Breakup1: return "Breakup1";
+            case Nucleus::ReactionRole::Breakup2: return "Breakup2";
+            case Nucleus::ReactionRole::None: return "None";
+        }
+
+        return "None";
+    }
 
     struct Histogram1DParams
     {
@@ -57,7 +73,14 @@ namespace AnasenSim {
         std::string m_outputName;
 
         std::unordered_map<std::string, std::shared_ptr<TObject>> m_map;
+
+        static constexpr double s_rad2deg = 180.0/M_PI;
     };
+
+    static constexpr double FullPhi(double phi)
+    {
+        return phi < 0.0 ? 2.0*M_PI + phi : phi;
+    }
 }
 
 #endif

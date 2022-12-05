@@ -7,21 +7,29 @@
 #include "TTree.h"
 
 #include <iostream>
+#include <sstream>
 
 namespace AnasenSim {
-
+    
     Plotter::Plotter(const std::string& inputname, const std::string& outputname) :
         m_inputName(inputname), m_outputName(outputname)
     {
         TH1::AddDirectory(kFALSE); //Force ROOT to let us own the histograms
+
+        if(!EnforceDictionaryLinked())
+        {
+            std::cout << "Dictionary error" << std::endl;
+        }
     }
+
+    Plotter::~Plotter() {}
 
     void Plotter::FillHistogram1D(const Histogram1DParams& params, double value)
     {
         auto iter = m_map.find(params.name);
         if(iter == m_map.end())
         {
-            std::shared_ptr<TH1F> histo = std::make_shared<TH1F>(params.name, params.title, params.bins, params.min, params.max);
+            std::shared_ptr<TH1F> histo = std::make_shared<TH1F>(params.name.c_str(), params.title.c_str(), params.bins, params.min, params.max);
             m_map[params.name] = std::static_pointer_cast<TObject>(histo);
             histo->Fill(value);
         }
@@ -38,7 +46,7 @@ namespace AnasenSim {
         auto iter = m_map.find(params.name);
         if(iter == m_map.end())
         {
-            std::shared_ptr<TH2F> histo = std::make_shared<TH2F>(params.name, params.title, params.binsX, params.minX, params.maxX, params.binsY, params.minY, params.maxY);
+            std::shared_ptr<TH2F> histo = std::make_shared<TH2F>(params.name.c_str(), params.title.c_str(), params.binsX, params.minX, params.maxX, params.binsY, params.minY, params.maxY);
             m_map[params.name] = std::static_pointer_cast<TObject>(histo);
             histo->Fill(valueX, valueY);
         }
@@ -99,12 +107,15 @@ namespace AnasenSim {
             return;
         }
 
+        std::cout << "Generating plots from simulation data in " << m_inputName << " and writing to " << m_outputName << std::endl;
+
         uint64_t nentries = simTree->GetEntries();
         uint64_t count = 0;
         double flushFrac = 0.01;
         uint64_t flushCount = 0;
         uint64_t flushVal = flushFrac * nentries;
 
+        std::cout << "Plotting..." << std::endl;
         for(uint64_t i=0; i<nentries; i++)
         {
             ++count;
@@ -112,7 +123,7 @@ namespace AnasenSim {
             {
                 ++flushCount;
                 count = 0;
-                std::cout << "Percent of data processed: " << flushCount * flushFrac * 100 << "%" << std::flush;
+                std::cout << "\rPercent of data processed: " << flushCount * flushFrac * 100 << "%" << std::flush;
             }
 
             simTree->GetEntry(i);
@@ -132,10 +143,24 @@ namespace AnasenSim {
         delete inputFile;
         delete outputFile;
         delete eventHandle;
+        std::cout << std::endl << "Complete." << std::endl;
     }
 
     void Plotter::PlotNucleus(const Nucleus& nucleus)
     {
-        
+        std::stringstream nucleusStream;
+        nucleusStream << nucleus.isotopicSymbol << "_" << ReactionRoleToString(nucleus.role);
+        FillGraph({nucleusStream.str() + "_KE_theta", nucleusStream.str() + ";#theta_{lab};KE (MeV)"}, nucleus.vec4.Theta() * s_rad2deg, nucleus.GetKE());
+        FillGraph({nucleusStream.str() + "_KE_phi", nucleusStream.str() + ";#phi_{lab};KE (MeV)"}, FullPhi(nucleus.vec4.Phi()) * s_rad2deg, nucleus.GetKE());
+        FillGraph({nucleusStream.str() + "_rxnX_rxnY", nucleusStream.str() + ";rxnX (m);rxnY (m)"}, nucleus.rxnPoint.X(), nucleus.rxnPoint.Y());
+        FillHistogram1D({nucleusStream.str() + "_rxnZ", nucleusStream.str() + ";rxnZ (m);", 554, 0.0, 0.554}, nucleus.rxnPoint.Z());
+        if(nucleus.isDetected)
+        {
+            FillGraph({nucleusStream.str() + "_KE_theta_det", nucleusStream.str() + ";#theta_{lab};KE (MeV)"}, nucleus.vec4.Theta() * s_rad2deg, nucleus.siliconDetKE);
+            FillGraph({nucleusStream.str() + "_KE_phi_det", nucleusStream.str() + ";#phi_{lab};KE (MeV)"}, FullPhi(nucleus.vec4.Phi()) * s_rad2deg, nucleus.siliconDetKE);
+            FillGraph({nucleusStream.str() + "_rxnX_rxnY_det", nucleusStream.str() + ";rxnX (m);rxnY (m)"}, nucleus.rxnPoint.X(), nucleus.rxnPoint.Y());
+            FillHistogram2D({"EdE_pcE_siKE", "EdE;Si KE(MeV);PC E(MeV)", 200, 0.0, 35.0, 200, 0.0, 1.5}, nucleus.siliconDetKE, nucleus.pcDetE);
+            FillHistogram1D({nucleusStream.str() + "_rxnZ_det", nucleusStream.str() + ";rxnZ (m);", 554, 0.0, 0.554}, nucleus.rxnPoint.Z());
+        }
     }
 }

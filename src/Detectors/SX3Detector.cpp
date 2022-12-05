@@ -85,45 +85,52 @@ namespace AnasenSim {
 
 		double y;
 		if(m_isSmearing)
-			y = -s_totalWidth/2.0 + (front_stripch + RandomGenerator::GetUniformFraction())*s_frontStripWidth;
+			y = s_totalWidth/2.0 - (front_stripch + RandomGenerator::GetUniformFraction())*s_frontStripWidth;
 		else
-			y = -s_totalWidth/2.0 + (front_stripch+0.5)*s_frontStripWidth;
+			y = s_totalWidth/2.0 - (front_stripch+0.5)*s_frontStripWidth;
 
 		//recall we're still assuming phi=0 det:
-		ROOT::Math::XYZPoint coords(m_centerRho, y, front_strip_ratio*(s_totalLength/2) + m_centerZ);
+		ROOT::Math::XYZPoint coords(m_centerRho, y, front_strip_ratio*(s_totalLength*0.5) + m_centerZ);
 	
 		//NOW rotate by appropriate phi
-		return m_zRotation*coords;
+		return m_zRotation * coords;
 
 	}
 
 	//Modified for gas target
 	SX3Hit SX3Detector::GetChannelRatio(const ROOT::Math::XYZPoint& rxnPoint, double theta, double phi)
 	{														
-		static ROOT::Math::XYZPoint& corner = m_rotFrontStripCoords[0][0]; //Top left
+		ROOT::Math::XYZPoint& corner = m_rotFrontStripCoords[0][0]; //Top left
+		
 		//Plane normal in rotated frame
-		static ROOT::Math::XYZVector normPlane = GetNormRotated();
+		ROOT::Math::XYZVector normPlane = GetNormRotated();
 
 		ROOT::Math::XYZVector direction(std::sin(theta)*std::cos(phi), std::sin(theta)*std::sin(phi), std::cos(theta));
 		SX3Hit hit;
 		//Scale factor
-		double t = (corner.Dot(normPlane) - normPlane.Dot(rxnPoint))/(normPlane.Dot(direction));
+		double t = normPlane.Dot(corner - rxnPoint)/(normPlane.Dot(direction));
 		ROOT::Math::XYZPoint hitCoords = rxnPoint + t*direction;
 
-		//Find strip channels in un-rotated frame
 		hitCoords = m_zRotation.Inverse() * hitCoords;
-		for (int s=0; s<s_nStrips; s++) {
-			if (hitCoords.X() >=m_frontStripCoords[s][0].X() && hitCoords.X() <=m_frontStripCoords[s][0].X() && //Check min and max x (constant in flat)
-				hitCoords.Y() >=m_frontStripCoords[s][1].Y() && hitCoords.Y() <=m_frontStripCoords[s][2].Y() && //Check min and max y
-				hitCoords.Z() >=m_frontStripCoords[s][1].Z() && hitCoords.Z() <=m_frontStripCoords[s][0].Z()) //Check min and max z
+
+		for (int s=0; s<s_nStrips; s++)
+		{
+			if (Precision::IsFloatAlmostEqual(hitCoords.X(), m_frontStripCoords[s][0].X(), s_epsilon) && //Check min and max x (constant in flat)
+				Precision::IsFloatGreaterOrAlmostEqual(hitCoords.Y(), m_frontStripCoords[s][1].Y(), s_epsilon) && 
+			    Precision::IsFloatLessOrAlmostEqual(hitCoords.Y(), m_frontStripCoords[s][2].Y(), s_epsilon) && //Check min and max y
+				Precision::IsFloatGreaterOrAlmostEqual(hitCoords.Z(), m_frontStripCoords[s][1].Z(), s_epsilon) &&
+			    Precision::IsFloatLessOrAlmostEqual(hitCoords.Z(), m_frontStripCoords[s][0].Z(), s_epsilon)) //Check min and max z
 			{
 				hit.front_strip_index = s;
-				hit.front_ratio = (hitCoords.Z()-m_centerZ)/(s_totalLength/2);
+				hit.front_ratio = (hitCoords.Z()-m_centerZ)/(s_totalLength*0.5);
+				hit.front_ratio = Precision::ClampFloat(-1.0, 1.0, hit.front_ratio);
 				break;
 			}
+			
 		}
 
-		for (int s=0; s<s_nStrips; s++) {
+		for (int s=0; s<s_nStrips; s++)
+		{
 			if (hitCoords.X() >= m_backStripCoords[s][0].X() && hitCoords.X() <= m_backStripCoords[s][0].X() && //Check min and max x (constant in flat)
 				hitCoords.Y() >= m_backStripCoords[s][1].Y() && hitCoords.Y() <= m_backStripCoords[s][2].Y() && //Check min and max y
 				hitCoords.Z() >= m_backStripCoords[s][1].Z() && hitCoords.Z() <= m_backStripCoords[s][0].Z()) //Check min and max z

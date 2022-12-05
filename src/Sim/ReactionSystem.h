@@ -38,6 +38,8 @@ namespace AnasenSim {
 		std::vector<Nucleus>* GetNuclei() { return &m_nuclei; }
 		const std::string& GetSystemEquation() const { return m_sysEquation; }
 		bool IsValid() const { return m_isValid; }
+		//Need to reset the detected status of the nulcei after they're written to disk
+		void ResetNucleiDetected();
 
 	protected:
 		virtual void SetSystemEquation() = 0;

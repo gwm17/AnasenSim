@@ -1,6 +1,7 @@
 #ifdef __CLING__
 
 #pragma link C++ struct AnasenSim::Nucleus+;
+#pragma link C++ class AnasenSim::Nucleus::ReactionRole+;
 #pragma link C++ class std::vector<AnasenSim::Nucleus>+;
 #pragma link C++ class std::string+;
 

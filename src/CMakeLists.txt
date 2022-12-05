@@ -27,6 +27,7 @@ target_sources(AnasenSim PRIVATE
     Sim/OneStepSystem.cpp
     Sim/TwoStepSystem.h
     Sim/TwoStepSystem.cpp
+    Detectors/IsEqual.h
     Detectors/QQQDetector.h
     Detectors/QQQDetector.cpp
     Detectors/SX3Detector.h

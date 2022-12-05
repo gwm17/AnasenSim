@@ -18,6 +18,7 @@
 #include "Math/Vector3D.h"
 #include "Math/RotationZ.h"
 #include "Sim/RandomGenerator.h"
+#include "IsEqual.h"
 
 namespace AnasenSim {
 
@@ -53,7 +54,8 @@ namespace AnasenSim {
 
 	private:
 		bool ValidChannel(int f) { return ((f >= 0 && f < s_nStrips) ? true : false); };
-		bool ValidRatio(double r) { return ((r >= -1 && r <= 1) ? true : false); };
+		bool ValidRatio(double r) { return ((Precision::IsFloatGreaterOrAlmostEqual(r, -1.0, s_epsilon) &&
+											 Precision::IsFloatLessOrAlmostEqual(r,  1.0, s_epsilon) ? true : false)); };
 		void CalculateCorners();
 
 		double m_centerPhi; //assuming det centered above x-axis (corresponds to zero phi)
@@ -70,6 +72,7 @@ namespace AnasenSim {
 		bool m_isSmearing;
 
 		//Units in meters
+		static constexpr double s_epsilon = 1.0e-6; //accuracy
 		static constexpr double s_nStrips = 4; //Same for front and back
 		static constexpr double s_nCorners = 4;
 		static constexpr double s_totalLength = 0.075; //length of front strips

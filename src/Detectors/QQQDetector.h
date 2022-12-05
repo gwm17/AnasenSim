@@ -16,6 +16,7 @@
 #include "Math/Vector3D.h"
 #include "Math/RotationZ.h"
 #include "Math/Translation3D.h"
+#include "IsEqual.h"
 
 namespace AnasenSim {
 	class QQQDetector
@@ -52,6 +53,7 @@ namespace AnasenSim {
 
 		bool m_isSmearing;
 
+		static constexpr double s_epsilon = 1.0e-6; //accuracy
 		static constexpr int s_nRings = 16;
 		static constexpr int s_nWedges = 16;
 		static constexpr double s_deg2rad  = M_PI/180.0;

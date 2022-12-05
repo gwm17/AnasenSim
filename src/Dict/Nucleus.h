@@ -18,6 +18,17 @@ namespace AnasenSim {
 
 	struct Nucleus
 	{
+		enum class ReactionRole
+		{
+			Target = 0,
+			Projectile = 1,
+			Ejectile = 2,
+			Residual = 3,
+			Breakup1 = 4,
+			Breakup2 = 5,
+			None = -1
+		};
+
 		void SetVec4Spherical(double theta, double phi, double p, double E)
 		{
 			vec4.SetPxPyPzE(std::sin(theta)*std::cos(phi)*p,
@@ -44,6 +55,7 @@ namespace AnasenSim {
 		double thetaCM = 0.0; // rad
 		ROOT::Math::PxPyPzEVector vec4;
 		ROOT::Math::XYZPoint rxnPoint;
+		ReactionRole role = ReactionRole::None;
 
 		bool isDetected = false;
 		double siliconDetKE = 0.0; //MeV

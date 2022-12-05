@@ -11,7 +11,11 @@ Written by G.W. McCann Aug. 2020
 
 */
 #include "Target.h"
+#include "SimBase.h"
 #include "catima/nucdata.h"
+#include "Detectors/IsEqual.h"
+
+#include <iostream>
 
 namespace AnasenSim {
 
@@ -23,6 +27,7 @@ namespace AnasenSim {
 		{
 			m_material.add_element(masses.FindMassU(z[i], a[i]), z[i], stoich[i]);
 		}
+
 		m_material.density(density); //g/cm^3
 	}
 	
@@ -33,9 +38,11 @@ namespace AnasenSim {
 	//return eloss in MeV
 	double Target::GetEnergyLoss(int zp, int ap, double startEnergy, double pathLength)
 	{
+		if(Precision::IsFloatLessOrAlmostEqual(startEnergy, 0.0, s_epsilon))
+			return 0.0;
 		catima::Projectile proj(MassLookup::GetInstance().FindMassU(zp, ap), zp, 0.0, 0.0);
 		proj.T = startEnergy/proj.A;
-		m_material.thickness_cm(pathLength * 10.0); //Takes in a path length and calculates density corrected thickness to thickness param
+		m_material.thickness_cm(pathLength * 100.0); //Takes in a path length and calculates density corrected thickness to thickness param
 		return catima::integrate_energyloss(proj, m_material);
 	}
 
@@ -44,61 +51,24 @@ namespace AnasenSim {
 	//return eloss in MeV
 	double Target::GetReverseEnergyLoss(int zp, int ap, double finalEnergy, double pathLength)
 	{
+		if(Precision::IsFloatLessOrAlmostEqual(finalEnergy, 0.0, s_epsilon))
+			return 0.0;
 		catima::Projectile proj(MassLookup::GetInstance().FindMassU(zp, ap), zp, 0.0, 0.0);
 		proj.T = finalEnergy/proj.A;
-		m_material.thickness_cm(pathLength * 10.0);
+		m_material.thickness_cm(pathLength * 100.0);
 		return catima::reverse_integrate_energyloss(proj, m_material);
 	}
 
-	//Use golden section search to find path length to reach finalEnergy
-	//ZP, AP: projectile isotope, startEnergy: MeV, finalEnergy: MeV
-	//return pathlength in m
+	//Get the path length (range) for a particle with incoming energy startEnergy and a outgoing energy finalEnergy 
 	double Target::GetPathLength(int zp, int ap, double startEnergy, double finalEnergy)
 	{
-		static double goldenRatioInv = 1.0/((std::sqrt(5.0) + 1.0) * 0.5);
-
-		
-
+		double densityInv = 1.0/m_material.density();
 		catima::Projectile proj(MassLookup::GetInstance().FindMassU(zp, ap), zp, 0.0, 0.0);
 		proj.T = startEnergy/proj.A;
-
-		//Our function to minimize, want enough energy loss that startEnergy = finalEnergy + energyLoss
-		auto function = [this, startEnergy, finalEnergy](catima::Projectile& proj, double pathLength) -> double
-		{
-			proj.T = startEnergy/proj.A; //Reset projectile KE for energy loss algorithm
-			m_material.thickness_cm(pathLength);
-			return startEnergy - (finalEnergy + catima::integrate_energyloss(proj, m_material));
-		};
-
-		double stopRange = catima::range(proj, m_material); //get the total range for startEnergy -> 0
-		//early out for complete stopping
-		if(finalEnergy == 0.0)
-			return stopRange;
-
-		//Our search points
-		double testLow, testHigh, boundLow, boundHigh;
-		double valueLow, valueHigh, testValueLow, testValueHigh;
-		boundLow = 0.0;
-		boundHigh = stopRange;
-
-		testHigh = boundHigh - (boundHigh - boundLow) * goldenRatioInv;
-		testLow = boundLow + (boundHigh - boundLow) * goldenRatioInv;
-	
-		while(std::fabs(boundHigh - boundLow) > s_rangeErrorTol)
-		{
-			valueLow = function(proj, testLow);
-			valueHigh = function(proj, testHigh);
-			if(valueLow < valueHigh)
-				boundHigh = testLow;
-			else
-				boundLow = testHigh;
-
-			//Recalc both test points to avoid floating point errors
-			testHigh = boundHigh - (boundHigh - boundLow) * goldenRatioInv;
-			testLow = boundLow + (boundHigh - boundLow) * goldenRatioInv;
-		}
-
-		return (boundHigh - boundLow) * 0.5 * 0.1; //convert to meters
+		double stopRange = catima::range(proj, m_material); //get the total range for startEnergy -> 0, returns g/cm^2!
+		proj.T = finalEnergy/proj.A;
+		double finalRange = catima::range(proj, m_material); //get the range bound from the final energy;
+		return (stopRange - finalRange) * densityInv * 0.01; //convert to m
 	}
 
 	//ZP, AP: projectile isotope, energy: MeV, pathLength: meters
@@ -106,8 +76,8 @@ namespace AnasenSim {
 	{
 		catima::Projectile proj(MassLookup::GetInstance().FindMassU(zp, ap), zp, 0.0, 0.0);
 		proj.T = energy/proj.A;
-		m_material.thickness_cm(pathLength * 10.0);
-
+		m_material.thickness_cm(pathLength * 100.0);
+		proj.T = energy/proj.A;
 		return catima::angular_straggling(proj, m_material);
 	}
 

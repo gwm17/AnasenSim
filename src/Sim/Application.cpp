@@ -35,6 +35,8 @@ namespace AnasenSim {
             return;
         }
 
+		std::cout << "Parsing configuration file: " << config << std::endl;
+
 		SystemParameters params;
         std::string junk;
 		configFile>>junk>>m_outputName;
@@ -127,6 +129,8 @@ namespace AnasenSim {
 		std::cout<<"Reaction equation: "<<m_system->GetSystemEquation()<<std::endl;
 		std::cout<<"Number of samples: "<<m_nSamples<<std::endl;
 
+		std::cout << "Configuration loaded successfully" << std::endl;
+
         m_isInit = true;
     }
 
@@ -152,6 +156,10 @@ namespace AnasenSim {
         uint64_t flushVal = flushPercent * m_nSamples;
         uint64_t count = 0, flushCount = 0;
 
+		std::cout << "Starting simulation..." << std::endl;
+
+		std::vector<Nucleus>* eventHandle = m_system->GetNuclei();
+
         for(uint64_t i=0; i<m_nSamples; i++)
         {
             count++;
@@ -159,16 +167,23 @@ namespace AnasenSim {
             {
                 count = 0;
                 flushCount++;
-                std::cout << "Percent of data simulated: " << flushCount * flushPercent * 100 << "%" << std::flush;
+                std::cout << "\rPercent of data simulated: " << flushCount * flushPercent * 100 << "%" << std::flush;
             }
 
             m_system->RunSystem();
+			for(Nucleus& nucleus : *eventHandle)
+			{
+				m_array->IsDetected(nucleus);
+			}
             outtree->Fill();
+			m_system->ResetNucleiDetected();
         }
 
         outputFile->cd();
         outtree->Write(outtree->GetName(), TObject::kOverwrite);
         outputFile->Close();
         delete outputFile;
+
+		std::cout << std::endl << "Simulation complete" << std::endl;
     }
 }

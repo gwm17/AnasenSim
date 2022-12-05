@@ -77,7 +77,7 @@ namespace AnasenSim {
 		double Ethresh = -Q*(m_ejectile->groundStateMass+m_residual->groundStateMass) / 
 						 (m_ejectile->groundStateMass + m_residual->groundStateMass - m_projectile->groundStateMass);
 
-		ASIM_ASSERT(m_bke < Ethresh, "Reaction energy not above threshold");
+		ASIM_ASSERT(m_bke > Ethresh, "Reaction energy not above threshold");
 	
 		double term1 = std::sqrt(m_projectile->groundStateMass * m_ejectile->groundStateMass * m_bke)/
 					   (m_ejectile->groundStateMass + m_residual->groundStateMass) * std::cos(m_theta);
@@ -117,7 +117,7 @@ namespace AnasenSim {
 	
 		double Ethresh = -Q*(m_ejectile->groundStateMass + m_residual->groundStateMass) / 
 						 (m_ejectile->groundStateMass + m_residual->groundStateMass - m_projectile->groundStateMass);
-		ASIM_ASSERT(m_bke < Ethresh, "Reaction energy not above threshold");
+		ASIM_ASSERT(m_bke > Ethresh, "Reaction energy not above threshold");
 		
 		
 		ROOT::Math::PxPyPzEVector parent = m_target->vec4 + m_projectile->vec4;
@@ -150,7 +150,7 @@ namespace AnasenSim {
 	{
 		double residualMass = m_residual->groundStateMass + m_ex;
 		double Q = m_target->vec4.M() - m_ejectile->groundStateMass - residualMass;
-		ASIM_ASSERT(Q < 0, "Decay not above threshold");
+		ASIM_ASSERT(Q > 0, "Decay not above threshold");
 	
 		ROOT::Math::Boost boost(m_target->vec4.BoostToCM());
 		m_target->vec4 = boost*m_target->vec4;

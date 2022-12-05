@@ -35,10 +35,10 @@ namespace AnasenSim {
 		int zr = step1Params.Z[0] + step1Params.Z[1] - step1Params.Z[2];
 		int ar = step1Params.A[0] + step1Params.A[1] - step1Params.A[2];
 
-		m_nuclei[0] = CreateNucleus(step1Params.Z[0], step1Params.A[0]); //target
-		m_nuclei[1] = CreateNucleus(step1Params.Z[1], step1Params.A[1]); //projectile
-		m_nuclei[2] = CreateNucleus(step1Params.Z[2], step1Params.A[2]); //ejectile
-		m_nuclei[3] = CreateNucleus(zr, ar); //residual
+		m_nuclei[0] = CreateNucleus(step1Params.Z[0], step1Params.A[0], Nucleus::ReactionRole::Target); //target
+		m_nuclei[1] = CreateNucleus(step1Params.Z[1], step1Params.A[1], Nucleus::ReactionRole::Projectile); //projectile
+		m_nuclei[2] = CreateNucleus(step1Params.Z[2], step1Params.A[2], Nucleus::ReactionRole::Ejectile); //ejectile
+		m_nuclei[3] = CreateNucleus(zr, ar, Nucleus::ReactionRole::Residual); //residual
 
 		m_step1.BindNuclei(&(m_nuclei[0]), &(m_nuclei[1]), &(m_nuclei[2]), &(m_nuclei[3]));
 		SetSystemEquation();
@@ -68,9 +68,8 @@ namespace AnasenSim {
 		rxnTheta = std::acos(RandomGenerator::GetUniformReal(s_cosThetaMin, s_cosThetaMax));
 		rxnPhi = RandomGenerator::GetUniformReal(s_phiMin, s_phiMax);
 		residEx = RandomGenerator::GetNormal(m_params.stepParams[0].meanResidualEx, m_params.stepParams[0].sigmaResidualEx);
-		beamTheta = RandomGenerator::GetNormal(0.0, m_beamStraggling);
+		beamTheta = RandomGenerator::GetUniformReal(0.0, m_beamStraggling);
 		beamPhi = RandomGenerator::GetUniformReal(s_phiMin, s_phiMax);
-		
 		rxnPoint.SetXYZ(std::sin(beamTheta)*std::cos(beamPhi)*m_rxnPathLength,
 						std::sin(beamTheta)*std::sin(beamPhi)*m_rxnPathLength,
 						std::cos(beamTheta)*m_rxnPathLength);

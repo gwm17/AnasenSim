@@ -37,7 +37,7 @@ namespace AnasenSim {
 	private:
 		catima::Material m_material;
 
-		static constexpr double s_rangeErrorTol = 1.0e-6;
+		static constexpr double s_epsilon = 1.0e-6;
 	};
 
 }

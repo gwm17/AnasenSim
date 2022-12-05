@@ -44,12 +44,12 @@ namespace AnasenSim {
 		int zb = step2Params.Z[0] - step2Params.Z[1];
 		int ab = step2Params.A[0] - step2Params.A[1];
 
-		m_nuclei[0] = CreateNucleus(step1Params.Z[0], step1Params.A[0]); //target
-		m_nuclei[1] = CreateNucleus(step1Params.Z[1], step1Params.A[1]); //projectile
-		m_nuclei[2] = CreateNucleus(step1Params.Z[2], step1Params.A[2]); //ejectile
-		m_nuclei[3] = CreateNucleus(zr, ar); //residual
-		m_nuclei[4] = CreateNucleus(step2Params.Z[1], step2Params.A[1]); //breakup1
-		m_nuclei[5] = CreateNucleus(zb, ab); //breakup2
+		m_nuclei[0] = CreateNucleus(step1Params.Z[0], step1Params.A[0], Nucleus::ReactionRole::Target); //target
+		m_nuclei[1] = CreateNucleus(step1Params.Z[1], step1Params.A[1], Nucleus::ReactionRole::Projectile); //projectile
+		m_nuclei[2] = CreateNucleus(step1Params.Z[2], step1Params.A[2], Nucleus::ReactionRole::Ejectile); //ejectile
+		m_nuclei[3] = CreateNucleus(zr, ar, Nucleus::ReactionRole::Residual); //residual
+		m_nuclei[4] = CreateNucleus(step2Params.Z[1], step2Params.A[1], Nucleus::ReactionRole::Breakup1); //breakup1
+		m_nuclei[5] = CreateNucleus(zb, ab, Nucleus::ReactionRole::Breakup2); //breakup2
 
 		m_step1.BindNuclei(&(m_nuclei[0]), &(m_nuclei[1]), &(m_nuclei[2]), &(m_nuclei[3]));
 		m_step2.BindNuclei(&(m_nuclei[3]), nullptr, &(m_nuclei[4]), &(m_nuclei[5]));
@@ -87,7 +87,7 @@ namespace AnasenSim {
 		decay1Phi = RandomGenerator::GetUniformReal(s_phiMin, s_phiMax);
 		residEx = RandomGenerator::GetNormal(m_params.stepParams[0].meanResidualEx, m_params.stepParams[0].sigmaResidualEx);
 		decay2Ex = RandomGenerator::GetNormal(m_params.stepParams[1].meanResidualEx, m_params.stepParams[1].sigmaResidualEx);
-		beamTheta = RandomGenerator::GetNormal(0.0, m_beamStraggling);
+		beamTheta = RandomGenerator::GetUniformReal(0.0, m_beamStraggling);
 		beamPhi = RandomGenerator::GetUniformReal(s_phiMin, s_phiMax);
 
 		rxnPoint.SetXYZ(std::sin(beamTheta)*std::cos(beamPhi)*m_rxnPathLength,

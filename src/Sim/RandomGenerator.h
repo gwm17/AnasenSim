@@ -2,6 +2,7 @@
 #define RANDOMGENERATOR_H
 
 #include <random>
+#include <iostream>
 
 namespace AnasenSim {
 
@@ -43,7 +44,14 @@ namespace AnasenSim {
 	private:
 		static std::mt19937_64& GetGenerator()
 		{
-			static thread_local std::mt19937_64 generator((std::random_device())());
+			static thread_local auto seed = std::random_device()();
+			static bool print = false; //For debugging, pickout a failing seed
+			if(print)
+			{
+				std::cout << "Using seed: " << seed << std::endl;
+				print = false;
+			}
+			static thread_local std::mt19937_64 generator(seed);
 			return generator;
 		}
 	};

@@ -90,6 +90,8 @@ namespace AnasenSim {
 	{
 		double z_to_detector = m_translation.Vect().Z() - rxnPoint.Z();
 		double rho_traj = z_to_detector*std::tan(theta);
+		if(rho_traj == 0.0)
+			rho_traj = rxnPoint.Rho();
 		double r_traj = std::sqrt(rho_traj*rho_traj + z_to_detector*z_to_detector);
 		double min_rho, max_rho, min_phi, max_phi;
 
@@ -99,13 +101,15 @@ namespace AnasenSim {
 		{
 			min_rho = ring[1].Rho();
 			max_rho = ring[0].Rho();
-			if(rho_traj < max_rho && rho_traj > min_rho)
+			if(Precision::IsFloatLessOrAlmostEqual(rho_traj, max_rho, s_epsilon) &&
+			   Precision::IsFloatGreaterOrAlmostEqual(rho_traj, min_rho, s_epsilon))
 			{
 				for(auto& wedge : m_wedgeCoords)
 				{
 					min_phi = wedge[0].Phi();
 					max_phi = wedge[3].Phi();
-					if(phi < min_phi && phi < max_phi)
+					if(Precision::IsFloatGreaterOrAlmostEqual(phi, min_phi, s_epsilon) && 
+					   Precision::IsFloatLessOrAlmostEqual(phi, max_phi, s_epsilon))
 					{
 						result.SetXYZ(std::sin(theta)*std::cos(phi)*r_traj, 
 									  std::sin(theta)*std::sin(phi)*r_traj, 
@@ -123,6 +127,8 @@ namespace AnasenSim {
 	{
 		double z_to_detector = m_translation.Vect().Z() - rxnPoint.Z();
 		double rho_traj = z_to_detector*std::tan(theta);
+		if(rho_traj == 0.0)
+			rho_traj = rxnPoint.Rho();
 		double min_rho, max_rho, min_phi, max_phi;
 
 
@@ -131,14 +137,16 @@ namespace AnasenSim {
 			auto& ring = m_ringCoords[r];
 			min_rho = ring[1].Rho();
 			max_rho = ring[0].Rho();
-			if(rho_traj < max_rho && rho_traj > min_rho)
+			if(Precision::IsFloatLessOrAlmostEqual(rho_traj, max_rho, s_epsilon) &&
+			   Precision::IsFloatGreaterOrAlmostEqual(rho_traj, min_rho, s_epsilon))
 			{
 				for(int w=0; w<s_nWedges; w++)
 				{
 					auto& wedge = m_wedgeCoords[w];
 					min_phi = wedge[0].Phi();
 					max_phi = wedge[3].Phi();
-					if(phi > min_phi && phi < max_phi)
+					if(Precision::IsFloatGreaterOrAlmostEqual(phi, min_phi, s_epsilon) && 
+					   Precision::IsFloatLessOrAlmostEqual(phi, max_phi, s_epsilon))
 						return std::make_pair(r, w);
 				}
 			}

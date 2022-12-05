@@ -1,11 +1,11 @@
 add_executable(Plotter)
 
 target_include_directories(Plotter PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../Dict
+    ${CMAKE_CURRENT_SOURCE_DIR}/../
     SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS}
 )
 
-target_sources(Plotter PRIVATE Plotter.h Plotter.cpp)
+target_sources(Plotter PRIVATE Plotter.h Plotter.cpp main.cpp)
 
 target_link_libraries(Plotter PRIVATE SimDict ${ROOT_LIBRARIES})
 

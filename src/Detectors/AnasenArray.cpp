@@ -117,16 +117,19 @@ namespace AnasenSim {
 		std::vector<ROOT::Math::XYZPoint> bqqq_points;
 		for(int i=0; i<s_nSX3PerBarrel; i++)
 		{
+			m_barrel1[i].SetPixelSmearing(false);
 			for(int j=0; j<4; j++)
-				r1_points.push_back(m_barrel1[i].GetHitCoordinates(j, 0));
+				r1_points.push_back(m_barrel1[i].GetHitCoordinates(j, -1.0));
 		}
 		for(int i=0; i<s_nSX3PerBarrel; i++)
 		{
+			m_barrel2[i].SetPixelSmearing(false);
 			for(int j=0; j<4; j++)
-				r2_points.push_back(m_barrel2[i].GetHitCoordinates(j, 0));
+				r2_points.push_back(m_barrel2[i].GetHitCoordinates(j, -1.0));
 		}
 		for(int i=0; i<s_nQQQ; i++)
 		{
+			m_qqq[i].SetSmearing(false);
 			for(int j=0; j<16; j++)
 			{
 				for(int k=0; k<16; k++)
@@ -141,9 +144,10 @@ namespace AnasenSim {
 		{
 			for(auto& sx3 : m_barrel1)
 			{
-				auto result = sx3.GetChannelRatio({0., 0., 0.}, point.Theta(), point.Phi());
+				auto result = sx3.GetChannelRatio(point, point.Theta(), point.Phi());
 				coords = sx3.GetHitCoordinates(result.front_strip_index, result.front_ratio);
-				if(IsDoubleEqual(point.X(), coords.X()) && IsDoubleEqual(point.Y(), coords.Y()) && IsDoubleEqual(point.Z(), coords.Z()))
+				if(Precision::IsFloatAlmostEqual(point.X(), coords.X(), s_epsilon) && Precision::IsFloatAlmostEqual(point.Y(), coords.Y(), s_epsilon) && 
+				   Precision::IsFloatAlmostEqual(point.Z(), coords.Z(), s_epsilon))
 				{
 					count++;
 					break;
@@ -154,9 +158,10 @@ namespace AnasenSim {
 		{
 			for(auto& sx3 : m_barrel2)
 			{
-				auto result = sx3.GetChannelRatio({0., 0., 0.}, point.Theta(), point.Phi());
+				auto result = sx3.GetChannelRatio(point, point.Theta(), point.Phi());
 				coords = sx3.GetHitCoordinates(result.front_strip_index, result.front_ratio);
-				if(IsDoubleEqual(point.X(), coords.X()) && IsDoubleEqual(point.Y(), coords.Y()) && IsDoubleEqual(point.Z(), coords.Z()))
+				if(Precision::IsFloatAlmostEqual(point.X(), coords.X(), s_epsilon) && Precision::IsFloatAlmostEqual(point.Y(), coords.Y(), s_epsilon) && 
+				   Precision::IsFloatAlmostEqual(point.Z(), coords.Z(), s_epsilon))
 				{
 					count++;
 					break;
@@ -167,9 +172,10 @@ namespace AnasenSim {
 		{
 			for(auto& qqq : m_qqq)
 			{
-				auto result = qqq.GetTrajectoryRingWedge({0., 0., 0.}, point.Theta(), point.Phi());
+				auto result = qqq.GetTrajectoryRingWedge(point, point.Theta(), point.Phi());
 				coords = qqq.GetHitCoordinates(result.first, result.second);
-				if(IsDoubleEqual(point.X(), coords.X()) && IsDoubleEqual(point.Y(), coords.Y()) && IsDoubleEqual(point.Z(), coords.Z()))
+				if(Precision::IsFloatAlmostEqual(point.X(), coords.X(), s_epsilon) && Precision::IsFloatAlmostEqual(point.Y(), coords.Y(), s_epsilon) && 
+				   Precision::IsFloatAlmostEqual(point.Z(), coords.Z(), s_epsilon))
 				{
 					count++;
 					break;
@@ -201,7 +207,10 @@ namespace AnasenSim {
 				effectiveThickness = s_detectorThickness/std::fabs(std::cos(thetaIncident));
 				nucleus.pcDetE = m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.pcVector - nucleus.rxnPoint).R());
 				energyAtSi = nucleus.GetKE() - m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.siVector - nucleus.rxnPoint).R());
-				nucleus.siliconDetKE = m_detectorEloss.GetEnergyLoss(nucleus.Z, nucleus.A, energyAtSi, effectiveThickness);
+				if(!Precision::IsFloatAlmostEqual(thetaIncident, M_PI/2.0, s_epsilon))
+					nucleus.siliconDetKE = m_detectorEloss.GetEnergyLoss(nucleus.Z, nucleus.A, energyAtSi, effectiveThickness);
+				else
+					nucleus.siliconDetKE = energyAtSi;
 
 				nucleus.siDetectorName = "R1";
 				return;
@@ -227,8 +236,10 @@ namespace AnasenSim {
 				effectiveThickness = s_detectorThickness/std::fabs(std::cos(thetaIncident));
 				nucleus.pcDetE = m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.pcVector - nucleus.rxnPoint).R());
 				energyAtSi = nucleus.GetKE() - m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.siVector - nucleus.rxnPoint).R());
-				nucleus.siliconDetKE = m_detectorEloss.GetEnergyLoss(nucleus.Z, nucleus.A, energyAtSi, effectiveThickness);
-
+				if(!Precision::IsFloatAlmostEqual(thetaIncident, M_PI/2.0, s_epsilon))
+					nucleus.siliconDetKE = m_detectorEloss.GetEnergyLoss(nucleus.Z, nucleus.A, energyAtSi, effectiveThickness);
+				else
+					nucleus.siliconDetKE = energyAtSi;
 				nucleus.siDetectorName = "R2";
 				return;
 			}
@@ -253,7 +264,10 @@ namespace AnasenSim {
 				effectiveThickness = s_detectorThickness / std::fabs(std::cos(thetaIncident));
 				nucleus.pcDetE = m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.pcVector - nucleus.rxnPoint).R());
 				energyAtSi = nucleus.GetKE() - m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.siVector - nucleus.rxnPoint).R());
-				nucleus.siliconDetKE = m_detectorEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), effectiveThickness);
+				if(!Precision::IsFloatAlmostEqual(thetaIncident, M_PI/2.0, s_epsilon))
+					nucleus.siliconDetKE = m_detectorEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), effectiveThickness);
+				else
+					nucleus.siliconDetKE = energyAtSi;
 				nucleus.siDetectorName = "FQQQ";
 				return;
 			}
@@ -262,6 +276,9 @@ namespace AnasenSim {
 
 	void AnasenArray::IsDetected(Nucleus& nucleus)
 	{
+		if(nucleus.role == Nucleus::ReactionRole::Target || nucleus.role == Nucleus::ReactionRole::Projectile)
+			return;
+
 		if(nucleus.GetKE() <= s_energyThreshold) //Below silicon detection threshold
 			return;
 		else if(nucleus.rxnPoint.Z() > s_totalLength) //reaction occurs outside the detector
