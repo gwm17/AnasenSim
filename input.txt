@@ -1,4 +1,6 @@
-OutputFile: /media/data/gwm17/be7_oldAnasen/simulation/7Bedp_8Bea_gs_400torrD2.root
+OutputFile: /media/data/gwm17/be7_oldAnasen/simulation/7Bedp_8Bea_1ex_400torrD2.root
+NumberOfThreads: 5
+NumberOfSamples: 1000000
 begin_target
 	Density(g/cm^3): 8.76e-5
 	begin_elements (Z, A, Stoich.)
@@ -6,7 +8,6 @@ begin_target
 	end_elements
 end_target
 begin_chain
-	NumberOfSamples: 10000
 	InitialBeamEnergy(MeV): 17.19
 	ReactionBeamEnergy(MeV): 0.87
 	begin_step

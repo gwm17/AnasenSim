@@ -208,7 +208,16 @@ namespace AnasenSim {
 				nucleus.pcDetE = m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.pcVector - nucleus.rxnPoint).R());
 				energyAtSi = nucleus.GetKE() - m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.siVector - nucleus.rxnPoint).R());
 				if(!Precision::IsFloatAlmostEqual(thetaIncident, M_PI/2.0, s_epsilon))
+				{
 					nucleus.siliconDetKE = m_detectorEloss.GetEnergyLoss(nucleus.Z, nucleus.A, energyAtSi, effectiveThickness);
+					if(Precision::IsFloatLessOrAlmostEqual(nucleus.siliconDetKE, s_energyThreshold, s_epsilon))
+					{
+						nucleus.isDetected = false;
+						nucleus.siVector.SetXYZ(0., 0., 0.);
+						nucleus.siliconDetKE = 0.0;
+						return;
+					}
+				}
 				else
 					nucleus.siliconDetKE = energyAtSi;
 
@@ -237,7 +246,16 @@ namespace AnasenSim {
 				nucleus.pcDetE = m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.pcVector - nucleus.rxnPoint).R());
 				energyAtSi = nucleus.GetKE() - m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.siVector - nucleus.rxnPoint).R());
 				if(!Precision::IsFloatAlmostEqual(thetaIncident, M_PI/2.0, s_epsilon))
+				{
 					nucleus.siliconDetKE = m_detectorEloss.GetEnergyLoss(nucleus.Z, nucleus.A, energyAtSi, effectiveThickness);
+					if(Precision::IsFloatLessOrAlmostEqual(nucleus.siliconDetKE, s_energyThreshold, s_epsilon))
+					{
+						nucleus.isDetected = false;
+						nucleus.siVector.SetXYZ(0., 0., 0.);
+						nucleus.siliconDetKE = 0.0;
+						return;
+					}
+				}
 				else
 					nucleus.siliconDetKE = energyAtSi;
 				nucleus.siDetectorName = "R2";
@@ -265,7 +283,16 @@ namespace AnasenSim {
 				nucleus.pcDetE = m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.pcVector - nucleus.rxnPoint).R());
 				energyAtSi = nucleus.GetKE() - m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.siVector - nucleus.rxnPoint).R());
 				if(!Precision::IsFloatAlmostEqual(thetaIncident, M_PI/2.0, s_epsilon))
-					nucleus.siliconDetKE = m_detectorEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), effectiveThickness);
+				{
+					nucleus.siliconDetKE = m_detectorEloss.GetEnergyLoss(nucleus.Z, nucleus.A, energyAtSi, effectiveThickness);
+					if(Precision::IsFloatLessOrAlmostEqual(nucleus.siliconDetKE, s_energyThreshold, s_epsilon))
+					{
+						nucleus.isDetected = false;
+						nucleus.siVector.SetXYZ(0., 0., 0.);
+						nucleus.siliconDetKE = 0.0;
+						return;
+					}
+				}
 				else
 					nucleus.siliconDetKE = energyAtSi;
 				nucleus.siDetectorName = "FQQQ";

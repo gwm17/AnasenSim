@@ -27,6 +27,9 @@ target_sources(AnasenSim PRIVATE
     Sim/OneStepSystem.cpp
     Sim/TwoStepSystem.h
     Sim/TwoStepSystem.cpp
+    Sim/ThreadPool.h
+    Sim/FileWriter.h
+    Sim/FileWriter.cpp
     Detectors/IsEqual.h
     Detectors/QQQDetector.h
     Detectors/QQQDetector.cpp
@@ -39,5 +42,8 @@ target_sources(AnasenSim PRIVATE
     main.cpp
 )
 
-target_link_libraries(AnasenSim PRIVATE catima ${ROOT_LIBS} SimDict)
+set(THREADS_PREFER_PTHREAD_FLAG On)
+find_package(Threads REQUIRED)
+target_link_libraries(AnasenSim PRIVATE catima ${ROOT_LIBS} SimDict Threads::Threads)
+
 set_target_properties(AnasenSim PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${ASIM_BINARY_DIR})

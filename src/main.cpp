@@ -21,6 +21,7 @@ int main(int argc, char** argv)
     if(!myApp->IsInit())
     {
         std::cerr << "Configuration file was not loaded correctly!" << std::endl;
+        delete myApp;
         return 1;
     }
 
