@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <filesystem>
 
 namespace AnasenSim {
 
@@ -23,7 +24,7 @@ namespace AnasenSim {
             uint64_t samples = 0;
         };
 
-        Application(const std::string& config);
+        Application(const std::filesystem::path& config);
         ~Application();
 
         void Run();
@@ -32,7 +33,7 @@ namespace AnasenSim {
         bool IsInit()  const { return m_isInit; }
 
     private:
-        void InitConfig(const std::string& config);
+        void InitConfig(const std::filesystem::path& config);
 
         bool m_isInit;
 

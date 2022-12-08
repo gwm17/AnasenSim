@@ -10,7 +10,7 @@
 
 namespace AnasenSim {
 
-    Application::Application(const std::string& config) :
+    Application::Application(const std::filesystem::path& config) :
         m_isInit(false)
     {
 		if(!EnforceDictionaryLinked())
@@ -24,14 +24,14 @@ namespace AnasenSim {
     {
     }
 
-    void Application::InitConfig(const std::string& config)
+    void Application::InitConfig(const std::filesystem::path& config)
     {
-        std::ifstream configFile(config);
-        if(!configFile.is_open())
+		if(std::filesystem::exists(config))
         {
-            std::cerr << "Unable to open configuration file " << config << std::endl;
+            std::cerr << "Unable to open configuration file " << config << " because it does not exist" << std::endl;
             return;
         }
+        std::ifstream configFile(config);
 
 		std::cout << "Parsing configuration file: " << config << std::endl;
 
