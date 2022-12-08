@@ -30,6 +30,7 @@ namespace AnasenSim {
         void RunSingleThread();
 
         bool IsInit()  const { return m_isInit; }
+
     private:
         void InitConfig(const std::string& config);
 
@@ -42,10 +43,6 @@ namespace AnasenSim {
         std::vector<Chunk> m_processingChunks;
         FileWriter m_fileWriter;
         std::unique_ptr<ThreadPool<Chunk*>> m_threadPool;
-
-        Target m_target;
-        ReactionSystem* m_system;
-        AnasenArray* m_array;
 
     };
 }

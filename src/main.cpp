@@ -11,11 +11,6 @@ int main(int argc, char** argv)
         return 1;
     }
 
-   // AnasenSim::AnasenArray array(AnasenSim::Target({1}, {1}, {1},1.0));
-   // double value = array.RunConsistencyCheck();
-   // std::cerr << "Efficiency check value " << value <<std::endl;
-
-    
     AnasenSim::Application* myApp = new AnasenSim::Application(argv[1]);
 
     if(!myApp->IsInit())

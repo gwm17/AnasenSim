@@ -11,7 +11,7 @@
 namespace AnasenSim {
 
     Application::Application(const std::string& config) :
-        m_isInit(false), m_system(nullptr), m_array(nullptr)
+        m_isInit(false)
     {
 		if(!EnforceDictionaryLinked())
 		{
@@ -22,8 +22,6 @@ namespace AnasenSim {
 
     Application::~Application()
     {
-		delete m_system;
-		delete m_array;
     }
 
     void Application::InitConfig(const std::string& config)
@@ -41,6 +39,7 @@ namespace AnasenSim {
         std::string junk;
 		configFile>>junk>>m_outputName;
 		configFile>>junk>>m_nThreads;
+		m_nThreads = m_nThreads > 0 ? m_nThreads : 1; //Enforce that we must always have one processing thread
 		configFile>>junk>>m_nSamples;
 		m_processingChunks.resize(m_nThreads);
 		m_threadPool = std::make_unique<ThreadPool<Chunk*>>(m_nThreads);
@@ -127,14 +126,6 @@ namespace AnasenSim {
 			}
 		}
 
-		m_system = CreateSystem(params);
-		m_array = new AnasenArray(params.target);
-		if(m_system == nullptr || !m_system->IsValid())
-		{
-			std::cerr<<"Failure to parse reaction system... configuration not loaded."<<std::endl;
-			return;
-		}
-
 		for(auto& chunk : m_processingChunks)
 		{
 			chunk.system = CreateSystem(params);
@@ -150,7 +141,7 @@ namespace AnasenSim {
 		std::getline(configFile, junk);
 
 		std::cout << "Output file: " << m_outputName << std::endl;
-		std::cout << "Reaction equation: " << m_system->GetSystemEquation() << std::endl;
+		std::cout << "Reaction equation: " << m_processingChunks[0].system->GetSystemEquation() << std::endl;
 		std::cout << "Number of samples: " << m_nSamples << std::endl;
 		std::cout << "Number of threads: " << m_nThreads << std::endl;
 
@@ -222,57 +213,4 @@ namespace AnasenSim {
 		std::cout<<std::endl;
 		std::cout<<"Simulation complete."<<std::endl;
 	}
-
-    void Application::RunSingleThread()
-    {
-        if(!m_isInit)
-        {
-            std::cerr << "Application not initialized at Application::Run()!" << std::endl;
-            return;
-        }
-
-        TFile* outputFile = TFile::Open(m_outputName.c_str(), "RECREATE");
-        if(!outputFile || !outputFile->IsOpen())
-        {
-            std::cerr << "Could not open output file " << m_outputName << " at Application::Run() " << std::endl;
-            return;
-        }
-
-        TTree* outtree = new TTree("SimTree", "SimTree");
-        outtree->Branch("event", m_system->GetNuclei());
-
-        double flushPercent = 0.01;
-        uint64_t flushVal = flushPercent * m_nSamples;
-        uint64_t count = 0, flushCount = 0;
-
-		std::cout << "Starting simulation..." << std::endl;
-
-		std::vector<Nucleus>* eventHandle = m_system->GetNuclei();
-
-        for(uint64_t i=0; i<m_nSamples; i++)
-        {
-            count++;
-            if(count == flushVal)
-            {
-                count = 0;
-                flushCount++;
-                std::cout << "\rPercent of data simulated: " << flushCount * flushPercent * 100 << "%" << std::flush;
-            }
-
-            m_system->RunSystem();
-			for(Nucleus& nucleus : *eventHandle)
-			{
-				m_array->IsDetected(nucleus);
-			}
-            outtree->Fill();
-			m_system->ResetNucleiDetected();
-        }
-
-        outputFile->cd();
-        outtree->Write(outtree->GetName(), TObject::kOverwrite);
-        outputFile->Close();
-        delete outputFile;
-
-		std::cout << std::endl << "Simulation complete" << std::endl;
-    }
 }
