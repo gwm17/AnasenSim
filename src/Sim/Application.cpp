@@ -17,7 +17,7 @@ namespace AnasenSim {
 		{
 			std::cerr << "Dictionary error!" << std::endl;
 		}
-        InitConfig(config);
+        InitConfig("." / config);
     }
 
     Application::~Application()
@@ -26,9 +26,10 @@ namespace AnasenSim {
 
     void Application::InitConfig(const std::filesystem::path& config)
     {
-		if(std::filesystem::exists(config))
+		std::error_code ec;
+		if(!std::filesystem::exists(config, ec))
         {
-            std::cerr << "Unable to open configuration file " << config << " because it does not exist" << std::endl;
+            std::cerr << "Unable to open configuration file " << config << " because: " << ec.message() << std::endl;
             return;
         }
         std::ifstream configFile(config);

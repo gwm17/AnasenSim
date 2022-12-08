@@ -20,7 +20,8 @@ namespace AnasenSim {
 
     FileWriter::~FileWriter()
     {
-        Close();
+        if(m_file != nullptr || m_tree != nullptr)
+            Close();
     }
 
     void FileWriter::Open(const std::string& filename, const std::string& treename)
