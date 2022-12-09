@@ -8,27 +8,27 @@ namespace AnasenSim {
 	DecaySystem::DecaySystem(const SystemParameters& params) :
 		ReactionSystem(params)
 	{
-		m_nuclei.resize(3);
-		Init(m_params.stepParams);
+		Init();
 	}
 	
 	DecaySystem::~DecaySystem() {}
 	
-	void DecaySystem::Init(const std::vector<StepParameters>& params)
+	void DecaySystem::Init()
 	{
-		if(params.size() != 1 || params[0].rxnType != RxnType::Decay ||
-		   params[0].Z.size() != 2 || params[0].A.size() != 2)
+		if(m_params.stepParams.size() != 1 || m_params.stepParams[0].rxnType != RxnType::Decay ||
+		   m_params.stepParams[0].Z.size() != 2 || m_params.stepParams[0].A.size() != 2)
 		{
 			m_isValid = false;
 			std::cerr << "Invalid parameters at DecaySystem::Init(), does not match Decay signature!" << std::endl;
 			return;
 		}
 
-		const StepParameters& step1Params = params[0];
+		const StepParameters& step1Params = m_params.stepParams[0];
 
 		int zr = step1Params.Z[0] - step1Params.Z[1];
 		int ar = step1Params.A[0] - step1Params.A[1];
 
+		m_nuclei.resize(3);
 		m_nuclei[0] = CreateNucleus(step1Params.Z[0], step1Params.A[0], Nucleus::ReactionRole::Target); //target
 		m_nuclei[1] = CreateNucleus(step1Params.Z[1], step1Params.A[1], Nucleus::ReactionRole::Breakup1); //breakup1
 		m_nuclei[2] = CreateNucleus(zr, ar, Nucleus::ReactionRole::Breakup2); //breakup2

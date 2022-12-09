@@ -45,8 +45,8 @@ namespace AnasenSim {
 		static constexpr double s_sx3FrameGap = 0.049; //0.049 is empty space due to width of SX3 barrel frame
 		static constexpr double s_totalLength = 0.554; //total length of the ANASEN chamber
 		static constexpr double s_qqqZ = s_totalLength;
-		static constexpr double s_barrel1Z = s_qqqZ - (0.0125 + s_sx3Length * 0.5);
-		static constexpr double s_barrel2Z = s_barrel1Z - (s_sx3Length + s_barrelGap + s_sx3FrameGap * 2.0);
+		static constexpr double s_barrel1Z = s_qqqZ - (0.025 + s_sx3Length * 0.5);
+		static constexpr double s_barrel2Z = s_qqqZ - (0.149 + s_sx3FrameGap * 0.5);
 		static constexpr double s_qqqZList[4] = {s_qqqZ, s_qqqZ, s_qqqZ, s_qqqZ};
 		static constexpr double s_qqqPhiList[4] = {5.49779, 0.785398, 2.35619, 3.92699};
 		static constexpr double s_barrelRhoList[12] = {0.0890601, 0.0889871, 0.0890354, 0.0890247, 0.0890354, 0.0890354, 0.0890247,

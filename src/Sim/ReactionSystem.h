@@ -25,6 +25,7 @@ namespace AnasenSim {
 		double initialBeamEnergy = 0.0;
 		double rxnBeamEnergy = 0.0;
 		std::vector<StepParameters> stepParams;
+		bool sampleBeam = false;
 	};
 
 	class ReactionSystem

@@ -14,7 +14,7 @@ namespace AnasenSim {
 		virtual void RunSystem() override;
 	
 	private:
-		void Init(const std::vector<StepParameters>& params);
+		void Init();
 		void SetSystemEquation() override;
 	
 		Reaction m_step1;

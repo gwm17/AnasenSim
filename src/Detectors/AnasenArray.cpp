@@ -29,9 +29,12 @@ namespace AnasenSim {
 	void AnasenArray::DrawDetectorSystem(const std::string& filename)
 	{
 		std::ofstream output(filename);
+		output<<"ANASEN Geometry File -- Coordinates for Detectors"<<std::endl;
 
 		std::vector<double> x, y, z;
+		std::vector<int> color;
 		std::vector<double> cx, cy, cz;
+		std::vector<int> ccolor;
 		ROOT::Math::XYZPoint coords;
 		for(int i=0; i<s_nSX3PerBarrel; i++)
 		{
@@ -43,15 +46,18 @@ namespace AnasenSim {
 					x.push_back(coords.X());
 					y.push_back(coords.Y());
 					z.push_back(coords.Z());
+					color.push_back(1);
 					coords = m_barrel1[i].GetRotatedBackStripCoordinates(j, k);
 					x.push_back(coords.X());
 					y.push_back(coords.Y());
 					z.push_back(coords.Z());
+					color.push_back(1);
 				}
 				coords = m_barrel1[i].GetHitCoordinates(j, 0);
 				cx.push_back(coords.X());
 				cy.push_back(coords.Y());
 				cz.push_back(coords.Z());
+				ccolor.push_back(1);
 			}
 		}
 		for(int i=0; i<s_nSX3PerBarrel; i++)
@@ -64,15 +70,18 @@ namespace AnasenSim {
 					x.push_back(coords.X());
 					y.push_back(coords.Y());
 					z.push_back(coords.Z());
+					color.push_back(2);
 					coords = m_barrel2[i].GetRotatedBackStripCoordinates(j, k);
 					x.push_back(coords.X());
 					y.push_back(coords.Y());
 					z.push_back(coords.Z());
+					color.push_back(2);
 				}
 				coords = m_barrel2[i].GetHitCoordinates(j, 0);
 				cx.push_back(coords.X());
 				cy.push_back(coords.Y());
 				cz.push_back(coords.Z());
+				ccolor.push_back(2);
 			}
 		}
 		for(int i=0; i<s_nQQQ; i++)
@@ -85,10 +94,12 @@ namespace AnasenSim {
 					x.push_back(coords.X());
 					y.push_back(coords.Y());
 					z.push_back(coords.Z());
+					color.push_back(4);
 					coords = m_qqq[i].GetWedgeCoordinates(j, k);
 					x.push_back(coords.X());
 					y.push_back(coords.Y());
 					z.push_back(coords.Z());
+					color.push_back(4);
 				}
 				for(int k=0; k<16; k++)
 				{
@@ -96,15 +107,15 @@ namespace AnasenSim {
 					cx.push_back(coords.X());
 					cy.push_back(coords.Y());
 					cz.push_back(coords.Z());
+					ccolor.push_back(4);
 				}
 			}
 		}
 
-		output<<"ANASEN Geometry File -- Coordinates for Detectors"<<std::endl;
 		for(std::size_t i=0; i<x.size(); i++)
-			output<<x[i]<<" "<<y[i]<<" "<<z[i]<<std::endl;
+			output<<x[i]<<" "<<y[i]<<" "<<z[i]<<" "<<color[i]<<std::endl;
 		for(std::size_t i=0; i<cx.size(); i++)
-			output<<cx[i]<<" "<<cy[i]<<" "<<cz[i]<<std::endl;
+			output<<cx[i]<<" "<<cy[i]<<" "<<cz[i]<<" "<<ccolor[i]<<std::endl;
 
 		output.close();
 	}
@@ -295,6 +306,7 @@ namespace AnasenSim {
 				}
 				else
 					nucleus.siliconDetKE = energyAtSi;
+
 				nucleus.siDetectorName = "FQQQ";
 				return;
 			}
@@ -317,6 +329,7 @@ namespace AnasenSim {
 			IsBarrel2(nucleus);
 		if(!nucleus.isDetected)
 			IsQQQ(nucleus);
+
 	}
 
 }

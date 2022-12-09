@@ -71,7 +71,17 @@ namespace AnasenSim {
 			if(junk == "begin_chain")
             {
                 configFile >> junk >> params.initialBeamEnergy
-                           >> junk >> params.rxnBeamEnergy;
+                           >> junk >> junk;
+				if(junk == "Random")
+				{
+					params.rxnBeamEnergy = 0.0;
+					params.sampleBeam = true;
+				}
+				else
+				{
+					params.rxnBeamEnergy = std::stod(junk);
+					params.sampleBeam = false;
+				}
 				continue;
             }
 			else if (junk == "end_chain")

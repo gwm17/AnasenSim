@@ -12,6 +12,10 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    //AnasenSim::AnasenArray array({});
+    //array.DrawDetectorSystem("etc/array.txt");
+
+    
     AnasenSim::Application* myApp = new AnasenSim::Application(argv[1]);
 
     if(!myApp->IsInit())

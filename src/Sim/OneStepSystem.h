@@ -14,11 +14,12 @@ namespace AnasenSim {
 		void RunSystem() override;
 	
 	private:
-		void Init(const std::vector<StepParameters>& params);
+		void Init();
 		virtual void SetSystemEquation() override;
 
 		double m_rxnPathLength;
 		double m_beamStraggling;
+		double m_rxnBeamEnergy;
 			
 		Reaction m_step1;
 	};
