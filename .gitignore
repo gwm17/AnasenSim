@@ -3,6 +3,7 @@ build/
 lib/
 .vscode/
 .vs/
+scripts/
 
 AnasenSim
 *.so
