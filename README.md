@@ -20,6 +20,8 @@ To run the simulation use the following command structure: `./bin/AnasenSim <you
 
 AnasenSim comes with a pre-packaged generic plotter (Plotter). This tool will take a simulation file and generate kinematics plots for the nuclei. It is very generic, so typically one would want to either tweak it to fit a specific use case, or design a custom plotter from scratch. Note that AnasenSim data is written using a ROOT dictionary, so a new plotter will need to link against the dictionary (found in lib).
 
+To run the plotter use the following command structure: `./bin/Plotter <simulation_file> <output_file>`
+
 ## Requirements
 
 - ROOT version which is compatible with CMake (tested on 6.25.06)
