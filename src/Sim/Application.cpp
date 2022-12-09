@@ -11,17 +11,19 @@
 namespace AnasenSim {
 
     Application::Application(const std::filesystem::path& config) :
-        m_isInit(false)
+        m_isInit(false), m_system(nullptr), m_array(nullptr)
     {
 		if(!EnforceDictionaryLinked())
 		{
 			std::cerr << "Dictionary error!" << std::endl;
 		}
-        InitConfig("." / config);
+        InitConfig(config);
     }
 
     Application::~Application()
     {
+		delete m_system;
+		delete m_array;
     }
 
     void Application::InitConfig(const std::filesystem::path& config)
@@ -39,20 +41,8 @@ namespace AnasenSim {
 		SystemParameters params;
         std::string junk;
 		configFile>>junk>>m_outputName;
-		configFile>>junk>>m_nThreads;
-		m_nThreads = m_nThreads > 0 ? m_nThreads : 1; //Enforce that we must always have one processing thread
 		configFile>>junk>>m_nSamples;
-		m_processingChunks.resize(m_nThreads);
-		m_threadPool = std::make_unique<ThreadPool<Chunk*>>(m_nThreads);
-		m_fileWriter.Open(m_outputName, "SimTree");
 		
-		//ensure that all samples are processed even when m_nSamples isn't evenly divisible by m_nThreads
-		uint64_t quotient = m_nSamples / m_nThreads;
-    	uint64_t remainder = m_nSamples % m_nThreads;
-    	m_processingChunks[0].samples = quotient + remainder;
-		for(uint64_t i=1; i<m_processingChunks.size(); i++)
-			m_processingChunks[i].samples = quotient;
-
 		double density;
 		std::vector<uint32_t> avec, zvec;
 		std::vector<int> svec;
@@ -127,24 +117,20 @@ namespace AnasenSim {
 			}
 		}
 
-		for(auto& chunk : m_processingChunks)
+		m_system = CreateSystem(params);
+		m_array = new AnasenArray(params.target);
+		if(m_system == nullptr || !m_system->IsValid())
 		{
-			chunk.system = CreateSystem(params);
-			chunk.array = new AnasenArray(params.target);
-			if(chunk.system == nullptr || !chunk.system->IsValid())
-			{
-				std::cerr<<"Failure to parse reaction system... configuration not loaded"<<std::endl;
-				return;
-			}
+			std::cerr<<"Failure to parse reaction system... configuration not loaded"<<std::endl;
+			return;
 		}
 
 		std::getline(configFile, junk);
 		std::getline(configFile, junk);
 
 		std::cout << "Output file: " << m_outputName << std::endl;
-		std::cout << "Reaction equation: " << m_processingChunks[0].system->GetSystemEquation() << std::endl;
+		std::cout << "Reaction equation: " << m_system->GetSystemEquation() << std::endl;
 		std::cout << "Number of samples: " << m_nSamples << std::endl;
-		std::cout << "Number of threads: " << m_nThreads << std::endl;
 
 		std::cout << "Configuration loaded successfully" << std::endl;
 
@@ -153,65 +139,55 @@ namespace AnasenSim {
 
 	void Application::Run()
 	{
-		if(!m_fileWriter.IsOpen())
-		{
-			std::cerr << "Could not open output file " << m_outputName << " at Application::Run() " << std::endl;
-			return;
-		}
+		if(!m_isInit)
+        {
+            std::cerr << "Application not initialized at Application::Run()!" << std::endl;
+            return;
+        }
 
-		if(m_processingChunks.size() != m_nThreads)
-		{
-			std::cerr << "System list not equal to number of threads" << std::endl;
-			return;
-		}
+        TFile* outputFile = TFile::Open(m_outputName.c_str(), "RECREATE");
+        if(!outputFile || !outputFile->IsOpen())
+        {
+            std::cerr << "Could not open output file " << m_outputName << " at Application::Run() " << std::endl;
+            return;
+        }
 
-		//Give our thread pool some tasks
-		for(std::size_t i=0; i<m_processingChunks.size(); i++)
-		{
-			//bind a lambda to the job, taking in a ReactionSystem, and then provide a reaction system as the tuple arguments.
-			m_threadPool->PushJob({[this](Chunk* processChunk) 
-				{
-					if(processChunk->system == nullptr || !processChunk->system->IsValid())
-						return;
-					
-					std::vector<Nucleus>* eventHandle = processChunk->system->GetNuclei();
+        TTree* outtree = new TTree("SimTree", "SimTree");
+        outtree->Branch("event", m_system->GetNuclei());
 
-					for(uint64_t i=0; i<processChunk->samples; i++)
-					{
-						processChunk->system->RunSystem();
-						for(Nucleus& nucleus : *eventHandle)
-						{
-							processChunk->array->IsDetected(nucleus);
-						}
-						m_fileWriter.PushData(*eventHandle);
-						processChunk->system->ResetNucleiDetected();
-					}
-				}, 
-				{&m_processingChunks[i]}
-			});
-		}
+        double flushPercent = 0.01;
+        uint64_t flushVal = flushPercent * m_nSamples;
+        uint64_t count = 0, flushCount = 0;
 
-		uint64_t count = 0;
-		double percent = 0.01;
-		uint64_t flushVal = m_nSamples*percent;
-		uint64_t flushCount = 0;
 		std::cout << "Starting simulation..." << std::endl;
-		while(true)
-		{
-			if(count == flushVal)
+
+		std::vector<Nucleus>* eventHandle = m_system->GetNuclei();
+
+        for(uint64_t i=0; i<m_nSamples; i++)
+        {
+            count++;
+            if(count == flushVal)
+            {
+                count = 0;
+                flushCount++;
+                std::cout << "\rPercent of data simulated: " << flushCount * flushPercent * 100 << "%" << std::flush;
+            }
+
+            m_system->RunSystem();
+			for(Nucleus& nucleus : *eventHandle)
 			{
-				count = 0;
-				++flushCount;
-				std::cout<<"\rPercent of data written to disk: "<<percent*flushCount*100<<"%"<<std::flush;
+				m_array->IsDetected(nucleus);
 			}
+            outtree->Fill();
+			m_system->ResetNucleiDetected();
+        }
 
-			if(m_threadPool->IsFinished() && m_fileWriter.GetQueueSize() == 0)
-				break;
-			else if(m_fileWriter.Write())
-				++count;
-		}
+        outputFile->cd();
+        outtree->Write(outtree->GetName(), TObject::kOverwrite);
+        outputFile->Close();
+        delete outputFile;
 
-		std::cout<<std::endl;
-		std::cout<<"Simulation complete."<<std::endl;
+		std::cout << std::endl << "Simulation complete" << std::endl;
 	}
+
 }

@@ -27,9 +27,6 @@ target_sources(AnasenSim PRIVATE
     Sim/OneStepSystem.cpp
     Sim/TwoStepSystem.h
     Sim/TwoStepSystem.cpp
-    Sim/ThreadPool.h
-    Sim/FileWriter.h
-    Sim/FileWriter.cpp
     Detectors/IsEqual.h
     Detectors/QQQDetector.h
     Detectors/QQQDetector.cpp
@@ -39,6 +36,8 @@ target_sources(AnasenSim PRIVATE
     Detectors/PCDetector.cpp
     Detectors/AnasenArray.h
     Detectors/AnasenArray.cpp
+    Utils/Timer.h
+    Utils/Timer.cpp
     main.cpp
 )
 

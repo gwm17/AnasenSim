@@ -3,8 +3,6 @@
 
 #include "ReactionSystem.h"
 #include "Detectors/AnasenArray.h"
-#include "FileWriter.h"
-#include "ThreadPool.h"
 
 #include <string>
 #include <vector>
@@ -41,9 +39,8 @@ namespace AnasenSim {
         uint64_t m_nSamples = 0;
         uint32_t m_nThreads = 0;
 
-        std::vector<Chunk> m_processingChunks;
-        FileWriter m_fileWriter;
-        std::unique_ptr<ThreadPool<Chunk*>> m_threadPool;
+        ReactionSystem* m_system;
+        AnasenArray* m_array;
 
     };
 }

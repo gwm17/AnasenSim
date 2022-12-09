@@ -1,5 +1,6 @@
 #include "Sim/Application.h"
 #include "Detectors/AnasenArray.h"
+#include "Utils/Timer.h"
 
 #include <iostream>
 
@@ -20,7 +21,12 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    AnasenSim::Timer watch;
+    watch.Start();
     myApp->Run();
+    watch.Stop();
+
+    std::cout << "Elapsed time: " << watch.GetElapsedMilliseconds() << " ms" << std::endl;
 
     delete myApp;
     

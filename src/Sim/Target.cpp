@@ -43,7 +43,7 @@ namespace AnasenSim {
 		catima::Projectile proj(MassLookup::GetInstance().FindMassU(zp, ap), zp, 0.0, 0.0);
 		proj.T = startEnergy/proj.A;
 		m_material.thickness_cm(pathLength * 100.0); //Takes in a path length and calculates density corrected thickness to thickness param
-		return catima::integrate_energyloss(proj, m_material);
+		return  startEnergy - (catima::energy_out(proj, m_material) * proj.A);
 	}
 
 	/*Calculates reverse energy loss for travelling all the way through the target*/
