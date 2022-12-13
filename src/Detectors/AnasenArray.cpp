@@ -210,13 +210,16 @@ namespace AnasenSim {
 			auto result = m_barrel1[i].GetChannelRatio(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi());
 			if(result.front_strip_index != -1) 
 			{
-				nucleus.pcVector = PCDetector::AssignPC(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi(), nucleus.Z);
 				nucleus.isDetected = true;
+				nucleus.pcVector = PCDetector::AssignPC(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi(), nucleus.Z);
 				nucleus.siVector = m_barrel1[i].GetHitCoordinates(result.front_strip_index, result.front_ratio);
 
 				thetaIncident = std::acos(nucleus.siVector.Dot(m_barrel1[i].GetNormRotated())/nucleus.siVector.R());
 				effectiveThickness = s_detectorThickness/std::fabs(std::cos(thetaIncident));
-				nucleus.pcDetE = m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.pcVector - nucleus.rxnPoint).R());
+				if(!Precision::IsFloatAlmostEqual(nucleus.pcVector.Z(), 0.0, s_epsilon))
+					nucleus.pcDetE = m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.pcVector - nucleus.rxnPoint).R());
+				else
+					nucleus.pcDetE = -1.0;
 				energyAtSi = nucleus.GetKE() - m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.siVector - nucleus.rxnPoint).R());
 				if(!Precision::IsFloatAlmostEqual(thetaIncident, M_PI/2.0, s_epsilon))
 				{
@@ -248,13 +251,16 @@ namespace AnasenSim {
 			auto result = m_barrel2[i].GetChannelRatio(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi());
 			if(result.front_strip_index != -1) 
 			{
-				nucleus.pcVector = PCDetector::AssignPC(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi(), nucleus.Z);
 				nucleus.isDetected = true;
+				nucleus.pcVector = PCDetector::AssignPC(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi(), nucleus.Z);
 				nucleus.siVector = m_barrel2[i].GetHitCoordinates(result.front_strip_index, result.front_ratio);
 
 				thetaIncident = std::acos(nucleus.siVector.Dot(m_barrel2[i].GetNormRotated())/nucleus.siVector.R());
 				effectiveThickness = s_detectorThickness/std::fabs(std::cos(thetaIncident));
-				nucleus.pcDetE = m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.pcVector - nucleus.rxnPoint).R());
+				if(!Precision::IsFloatAlmostEqual(nucleus.pcVector.Z(), 0.0, s_epsilon))
+					nucleus.pcDetE = m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.pcVector - nucleus.rxnPoint).R());
+				else
+					nucleus.pcDetE = -1.0;
 				energyAtSi = nucleus.GetKE() - m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.siVector - nucleus.rxnPoint).R());
 				if(!Precision::IsFloatAlmostEqual(thetaIncident, M_PI/2.0, s_epsilon))
 				{
@@ -285,13 +291,16 @@ namespace AnasenSim {
 			auto result = m_qqq[i].GetTrajectoryRingWedge(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi());
 			if(result.first != -1) 
 			{
-				nucleus.pcVector = PCDetector::AssignPC(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi(), nucleus.Z);
 				nucleus.isDetected = true;
+				nucleus.pcVector = PCDetector::AssignPC(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi(), nucleus.Z);
 				nucleus.siVector = m_qqq[i].GetHitCoordinates(result.first, result.second);
 
 				thetaIncident = std::acos(nucleus.siVector.Dot(m_qqq[i].GetNorm())/nucleus.siVector.R());
 				effectiveThickness = s_detectorThickness / std::fabs(std::cos(thetaIncident));
-				nucleus.pcDetE = m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.pcVector - nucleus.rxnPoint).R());
+				if(!Precision::IsFloatAlmostEqual(nucleus.pcVector.Z(), 0.0, s_epsilon))
+					nucleus.pcDetE = m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.pcVector - nucleus.rxnPoint).R());
+				else
+					nucleus.pcDetE = -1.0;
 				energyAtSi = nucleus.GetKE() - m_gasEloss.GetEnergyLoss(nucleus.Z, nucleus.A, nucleus.GetKE(), (nucleus.siVector - nucleus.rxnPoint).R());
 				if(!Precision::IsFloatAlmostEqual(thetaIncident, M_PI/2.0, s_epsilon))
 				{

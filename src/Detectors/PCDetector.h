@@ -20,7 +20,7 @@ namespace AnasenSim {
 
     private:
         static constexpr int s_nWires = 24;
-        static constexpr double s_wireRadius = 0.3846264509; //m
+        static constexpr double s_wireRadius = 0.03846264509; //m
         static constexpr double s_wireDeltaPhi = 2.0*M_PI/s_nWires;
 
         //Z-position uncertainty for protons and all others (2 cm for proton, 1cm for all else, here as sigma)

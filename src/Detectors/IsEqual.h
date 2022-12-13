@@ -25,7 +25,7 @@ namespace AnasenSim {
 
         static constexpr double ClampFloat(double min, double max, double value)
         {
-            return std::clamp(min, max, value);
+            return std::clamp(value, min, max);
         }
     }
 }

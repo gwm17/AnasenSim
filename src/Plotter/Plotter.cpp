@@ -159,7 +159,8 @@ namespace AnasenSim {
             FillGraph({nucleusStream.str() + "_KE_theta_det", nucleusStream.str() + ";#theta_{lab};KE (MeV)"}, nucleus.vec4.Theta() * s_rad2deg, nucleus.siliconDetKE);
             FillGraph({nucleusStream.str() + "_KE_phi_det", nucleusStream.str() + ";#phi_{lab};KE (MeV)"}, FullPhi(nucleus.vec4.Phi()) * s_rad2deg, nucleus.siliconDetKE);
             FillGraph({nucleusStream.str() + "_rxnX_rxnY_det", nucleusStream.str() + ";rxnX (m);rxnY (m)"}, nucleus.rxnPoint.X(), nucleus.rxnPoint.Y());
-            FillHistogram2D({"EdE_pcE_siKE", "EdE;Si KE(MeV);PC E(MeV)", 200, 0.0, 35.0, 200, 0.0, 20.0}, nucleus.siliconDetKE, nucleus.pcDetE);
+            FillHistogram2D({"EdE_pcE_siKE", "EdE;Si KE(MeV);PC E(MeV)", 3500, 0.0, 35.0, 1500, 0.0, 15.0}, nucleus.siliconDetKE, nucleus.pcDetE);
+            FillHistogram2D({nucleusStream.str() + "_EdE_pcE_siKE", nucleusStream.str() + "_EdE;Si KE(MeV);PC E(MeV)", 200, 0.0, 35.0, 200, 0.0, 20.0}, nucleus.siliconDetKE, nucleus.pcDetE);
             FillHistogram1D({nucleusStream.str() + "_rxnZ_det", nucleusStream.str() + ";rxnZ (m);", 554, 0.0, 0.554}, nucleus.rxnPoint.Z());
         }
     }

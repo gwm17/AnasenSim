@@ -68,8 +68,8 @@ namespace AnasenSim {
         ROOT::Math::XYZVector particleTraj(std::sin(theta)*std::cos(phi), std::sin(theta)*std::sin(phi), std::cos(theta));
 
         double b  = 2.0 * (rxnPoint.X() * particleTraj.X() + rxnPoint.Y() * particleTraj.Y());
-        double a  = particleTraj.Rho()*particleTraj.Rho();
-        double c = rxnPoint.Rho() * rxnPoint.Rho();
+        double a  = particleTraj.Rho() * particleTraj.Rho();
+        double c = rxnPoint.Rho() * rxnPoint.Rho() - s_wireRadius * s_wireRadius;
         double radicand = b*b - 4.0 * a * c;
         if(radicand < 0.0)
             return ROOT::Math::XYZPoint();
@@ -77,6 +77,8 @@ namespace AnasenSim {
         double t1 = (-1.0*b + std::sqrt(radicand))/(2.0 * a);
         double t2 = (-1.0*b - std::sqrt(radicand))/(2.0 * a);
         ROOT::Math::XYZPoint intersectionPoint;
+        if(t1 < 0.0 && t2 < 0.0)
+            return ROOT::Math::XYZPoint();
         if(t1 < 0.0)
             intersectionPoint = rxnPoint + t2 * particleTraj;
         else
@@ -86,7 +88,7 @@ namespace AnasenSim {
         if(intersectPhi < 0.0)
             intersectPhi += 2.0 * M_PI;
         
-        double wireFrac = intersectPhi/s_nWires;
+        double wireFrac = intersectPhi/s_wireDeltaPhi;
         double nearestWirePhi = std::round(wireFrac) * s_wireDeltaPhi;
 
         if(zp == 1)
