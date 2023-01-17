@@ -61,6 +61,29 @@ namespace AnasenSim {
 		else
 			m_isInit = true;
 	}
+
+	bool Reaction::CheckReactionThreshold(double beamEnergy, double excitation)
+	{
+		double Q = m_target->groundStateMass + m_projectile->groundStateMass -
+				   (m_ejectile->groundStateMass + m_residual->groundStateMass + excitation);
+		double Ethresh = -Q*(m_ejectile->groundStateMass+m_residual->groundStateMass) / 
+						 (m_ejectile->groundStateMass + m_residual->groundStateMass - m_projectile->groundStateMass);
+		if (beamEnergy < Ethresh)
+			return false;
+		else
+			return true;
+	}
+
+	bool Reaction::CheckDecayThreshold(double targetExcitation, double residualExcitation)
+	{
+		double residualMass = m_residual->groundStateMass + m_ex;
+		double Q = m_target->groundStateMass + targetExcitation - 
+				  (m_ejectile->groundStateMass + m_residual->groundStateMass + residualExcitation);
+		if ( Q < 0.0)
+			return false;
+		else
+			return true;
+	}
 	
 	
 	//Methods given by Iliadis in Nuclear Physics of Stars, Appendix C
@@ -138,6 +161,7 @@ namespace AnasenSim {
 		ejectP = std::sqrt(ejectKE*(ejectKE + 2.0 * m_ejectile->groundStateMass));
 		ejectE = ejectKE + m_ejectile->groundStateMass;
 		m_ejectile->SetVec4Spherical(m_ejectile->vec4.Theta(), m_ejectile->vec4.Phi(), ejectP, ejectE);
+
 	}
 	
 	void Reaction::CalculateReaction()
@@ -166,6 +190,9 @@ namespace AnasenSim {
 		m_ejectile->vec4 = boost.Inverse() * m_ejectile->vec4;
 	
 		m_residual->vec4 = m_target->vec4 - m_ejectile->vec4;
+
+		if (std::isnan(m_ejectile->GetKE()))
+			std::cout << m_ejectile->isotopicSymbol << " nanned! " << " Q: " << Q << " Resid mass: " << residualMass << " Target mass: " << m_target->vec4.M() << " eject mass: " << m_ejectile->groundStateMass << std::endl;
 	}
 
 }

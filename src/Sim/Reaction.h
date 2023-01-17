@@ -38,6 +38,9 @@ namespace AnasenSim {
 		void BindResidual(Nucleus* nuc) { m_residual = nuc; };
 
 		bool IsDecay() const { return m_isDecay; };
+		//Use these when sampling to see if a valid excitation/beam energy configuration was sampled.
+		bool CheckReactionThreshold(double beamEnergy, double excitation);
+		bool CheckDecayThreshold(double targetExcitation, double residualExcitation);
 
 	private:
 		void CalculateDecay(); //target -> light_decay (eject) + heavy_decay(resid)
