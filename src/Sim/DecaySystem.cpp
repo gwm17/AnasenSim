@@ -46,17 +46,25 @@ namespace AnasenSim {
 			   << m_nuclei[2].isotopicSymbol;
 		m_sysEquation = stream.str();
 	}
+
+	void DecaySystem::SampleParameters()
+	{
+		m_rxnTheta = std::acos(RandomGenerator::GetUniformReal(s_cosThetaMin, s_cosThetaMax));
+		m_rxnPhi = RandomGenerator::GetUniformReal(s_phiMin, s_phiMax);
+		m_ex = RandomGenerator::GetNormal(m_params.stepParams[0].meanResidualEx, m_params.stepParams[0].sigmaResidualEx);
+	}
 	
 	void DecaySystem::RunSystem()
 	{
-		double rxnTheta = std::acos(RandomGenerator::GetUniformReal(s_cosThetaMin, s_cosThetaMax));
-		double rxnPhi = RandomGenerator::GetUniformReal(s_phiMin, s_phiMax);
-		double ex = RandomGenerator::GetNormal(m_params.stepParams[0].meanResidualEx,
-											   m_params.stepParams[0].sigmaResidualEx);
-
-		m_step1.SetPolarRxnAngle(rxnTheta);
-		m_step1.SetAzimRxnAngle(rxnPhi);
-		m_step1.SetExcitation(ex);
+		
+		SampleParameters();
+		while(!m_step1.CheckDecayThreshold(0.0, m_ex))
+		{
+			SampleParameters();
+		}
+		m_step1.SetPolarRxnAngle(m_rxnTheta);
+		m_step1.SetAzimRxnAngle(m_rxnPhi);
+		m_step1.SetExcitation(m_ex);
 		m_step1.Calculate();
 	}
 

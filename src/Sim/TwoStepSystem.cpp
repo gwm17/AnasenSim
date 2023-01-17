@@ -75,48 +75,50 @@ namespace AnasenSim {
 		m_sysEquation = stream.str();
 	}
 
-	void TwoStepSystem::RunSystem()
+	void TwoStepSystem::SampleParameters()
 	{
-		static double rxnTheta;
-		static double rxnPhi;
-		static double decay1Theta;
-		static double decay1Phi;
-		static double residEx;
-		static double decay2Ex;
-		static double beamTheta;
-		static double beamPhi;
-		static ROOT::Math::XYZPoint rxnPoint;
-
-		//Sample parameters
-		rxnTheta = std::acos(RandomGenerator::GetUniformReal(s_cosThetaMin, s_cosThetaMax));
-		rxnPhi = RandomGenerator::GetUniformReal(s_phiMin, s_phiMax);
-		decay1Theta = std::acos(RandomGenerator::GetUniformReal(s_cosThetaMin, s_cosThetaMax));
-		decay1Phi = RandomGenerator::GetUniformReal(s_phiMin, s_phiMax);
-		residEx = RandomGenerator::GetNormal(m_params.stepParams[0].meanResidualEx, m_params.stepParams[0].sigmaResidualEx);
-		decay2Ex = RandomGenerator::GetNormal(m_params.stepParams[1].meanResidualEx, m_params.stepParams[1].sigmaResidualEx);
+		m_rxnTheta = std::acos(RandomGenerator::GetUniformReal(s_cosThetaMin, s_cosThetaMax));
+		m_rxnPhi = RandomGenerator::GetUniformReal(s_phiMin, s_phiMax);
+		m_decay1Theta = std::acos(RandomGenerator::GetUniformReal(s_cosThetaMin, s_cosThetaMax));
+		m_decay1Phi = RandomGenerator::GetUniformReal(s_phiMin, s_phiMax);
+		m_residEx = RandomGenerator::GetNormal(m_params.stepParams[0].meanResidualEx, m_params.stepParams[0].sigmaResidualEx);
+		m_decay2Ex = RandomGenerator::GetNormal(m_params.stepParams[1].meanResidualEx, m_params.stepParams[1].sigmaResidualEx);
+		m_beamTheta = RandomGenerator::GetUniformReal(0.0, m_beamStraggling);
+		m_beamPhi = RandomGenerator::GetUniformReal(s_phiMin, s_phiMax);
 		if(m_params.sampleBeam)
 		{
 			m_rxnBeamEnergy = RandomGenerator::GetUniformReal(0.0, m_params.initialBeamEnergy);
 			m_rxnPathLength = m_params.target.GetPathLength(m_nuclei[1].Z, m_nuclei[1].A, m_params.initialBeamEnergy, m_rxnBeamEnergy);
 			m_beamStraggling = m_params.target.GetAngularStraggling(m_nuclei[1].Z, m_nuclei[1].A, m_params.initialBeamEnergy, m_rxnPathLength);
 		}
-		beamTheta = RandomGenerator::GetUniformReal(0.0, m_beamStraggling);
-		beamPhi = RandomGenerator::GetUniformReal(s_phiMin, s_phiMax);
+	}
 
-		rxnPoint.SetXYZ(std::sin(beamTheta)*std::cos(beamPhi)*m_rxnPathLength,
-						std::sin(beamTheta)*std::sin(beamPhi)*m_rxnPathLength,
-						std::cos(beamTheta)*m_rxnPathLength);
+	void TwoStepSystem::RunSystem()
+	{
+		
+		static ROOT::Math::XYZPoint rxnPoint;
+
+		SampleParameters();
+		//Check to make sure that the sampled configuration is valid (energy is conserved)
+		while(!(m_step1.CheckReactionThreshold(m_rxnBeamEnergy, m_residEx) && m_step2.CheckDecayThreshold(m_residEx, m_decay2Ex)))
+		{
+			SampleParameters();
+		}
+
+		rxnPoint.SetXYZ(std::sin(m_beamTheta)*std::cos(m_beamPhi)*m_rxnPathLength,
+						std::sin(m_beamTheta)*std::sin(m_beamPhi)*m_rxnPathLength,
+						std::cos(m_beamTheta)*m_rxnPathLength);
 	
-		m_step1.SetPolarRxnAngle(rxnTheta);
-		m_step1.SetAzimRxnAngle(rxnPhi);
-		m_step1.SetExcitation(residEx);
+		m_step1.SetPolarRxnAngle(m_rxnTheta);
+		m_step1.SetAzimRxnAngle(m_rxnPhi);
+		m_step1.SetExcitation(m_residEx);
 		m_step1.SetBeamKE(m_rxnBeamEnergy);
-		m_step1.SetBeamTheta(beamTheta);
-		m_step1.SetBeamPhi(beamPhi);
+		m_step1.SetBeamTheta(m_beamTheta);
+		m_step1.SetBeamPhi(m_beamPhi);
 	
-		m_step2.SetPolarRxnAngle(decay1Theta);
-		m_step2.SetAzimRxnAngle(decay1Phi);
-		m_step2.SetExcitation(decay2Ex);
+		m_step2.SetPolarRxnAngle(m_decay1Theta);
+		m_step2.SetAzimRxnAngle(m_decay1Phi);
+		m_step2.SetExcitation(m_decay2Ex);
 		
 		m_step1.Calculate();
 		m_step2.Calculate();

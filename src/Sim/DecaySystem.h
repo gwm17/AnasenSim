@@ -16,8 +16,12 @@ namespace AnasenSim {
 	private:
 		void Init();
 		void SetSystemEquation() override;
+		void SampleParameters();
 	
 		Reaction m_step1;
+		double m_rxnTheta;
+		double m_rxnPhi;
+		double m_ex;
 	};
 
 }
