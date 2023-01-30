@@ -40,7 +40,9 @@ namespace AnasenSim {
 
 		SystemParameters params;
         std::string junk;
+		std::string deadChannelFile;
 		configFile>>junk>>m_outputName;
+		configFile >> junk >> deadChannelFile;
 		configFile>>junk>>m_nSamples;
 		
 		double density;
@@ -129,6 +131,8 @@ namespace AnasenSim {
 
 		m_system = CreateSystem(params);
 		m_array = new AnasenArray(params.target);
+		if(deadChannelFile != "None")
+			m_array->SetDeadChannelMap(deadChannelFile);
 		if(m_system == nullptr || !m_system->IsValid())
 		{
 			std::cerr<<"Failure to parse reaction system... configuration not loaded"<<std::endl;

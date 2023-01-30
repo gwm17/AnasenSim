@@ -36,8 +36,11 @@ target_sources(AnasenSim PRIVATE
     Detectors/PCDetector.cpp
     Detectors/AnasenArray.h
     Detectors/AnasenArray.cpp
+    Detectors/DeadChannelMap.h
+    Detectors/DeadChannelMap.cpp
     Utils/Timer.h
     Utils/Timer.cpp
+    Utils/UUID.h
     main.cpp
 )
 

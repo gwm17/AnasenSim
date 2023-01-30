@@ -7,6 +7,7 @@
 #include "QQQDetector.h"
 #include "Sim/Target.h"
 #include "Dict/Nucleus.h"
+#include "DeadChannelMap.h"
 
 namespace AnasenSim {
 
@@ -18,7 +19,7 @@ namespace AnasenSim {
 		void IsDetected(Nucleus& nucleus);
 		void DrawDetectorSystem(const std::string& filename);
 		double RunConsistencyCheck();
-		//void SetDeadChannelMap(const std::string& filename) { dmap.LoadMapfile(filename); }
+		void SetDeadChannelMap(const std::string& filename) { m_deadMap.ReadFile(filename); }
 
 	private:
 		void IsBarrel1(Nucleus& nucleus);
@@ -34,7 +35,7 @@ namespace AnasenSim {
 
 		ROOT::Math::XYZPoint m_nullPoint;
 
-		//AnasenDeadChannelMap dmap;
+		DeadChannelMap m_deadMap;
 
 		/**** ANASEN geometry constants *****/
 		static constexpr double s_epsilon = 1.0e-6; //accuracy

@@ -27,20 +27,22 @@ namespace AnasenSim {
 		void SetBeamTheta(double theta) { m_beamTheta = theta; }
 		void SetBeamPhi(double phi) { m_beamPhi = phi; }
 
-		void SetPolarRxnAngle(double theta) { m_theta = theta; };
-		void SetAzimRxnAngle(double phi) { m_phi = phi; };
-		void SetExcitation(double ex) { m_ex = ex; };
+		void SetPolarRxnAngle(double theta) { m_theta = theta; }
+		void SetAzimRxnAngle(double phi) { m_phi = phi; }
+		void SetExcitation(double ex) { m_ex = ex; }
 
 		//Can rebind individuals if needed
-		void BindTarget(Nucleus* nuc) { m_target = nuc; };
-		void BindProjectile(Nucleus* nuc) { m_projectile = nuc; };
-		void BindEjectile(Nucleus* nuc) { m_ejectile = nuc; };
-		void BindResidual(Nucleus* nuc) { m_residual = nuc; };
+		void BindTarget(Nucleus* nuc) { m_target = nuc; }
+		void BindProjectile(Nucleus* nuc) { m_projectile = nuc; }
+		void BindEjectile(Nucleus* nuc) { m_ejectile = nuc; }
+		void BindResidual(Nucleus* nuc) { m_residual = nuc; }
 
-		bool IsDecay() const { return m_isDecay; };
+		bool IsDecay() const { return m_isDecay; }
 		//Use these when sampling to see if a valid excitation/beam energy configuration was sampled.
 		bool CheckReactionThreshold(double beamEnergy, double excitation);
 		bool CheckDecayThreshold(double targetExcitation, double residualExcitation);
+		//Testing against nabin method
+		double SampleExcitationPhaseSpace(double beamEnergy, double beamTheta, double beamPhi, double ejectThetaCM, double ejectPhiCM);
 
 	private:
 		void CalculateDecay(); //target -> light_decay (eject) + heavy_decay(resid)

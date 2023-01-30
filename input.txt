@@ -1,5 +1,6 @@
-OutputFile: /media/data/gwm17/be7_oldAnasen/simulation/7Beda_5Lip_gs_400torrD2_nubPeak.root
-NumberOfSamples: 1000000
+OutputFile: /media/data/gwm17/be7_oldAnasen/simulation/7Beda_5Lip_gs_400torrD2_fullRangeDeadPC.root
+DeadChannelMap: /home/gwm17/AnasenSim/etc/nabin_deadChannels.txt
+NumberOfSamples: 10000000
 begin_target
 	Density(g/cm^3): 8.76e-5
 	begin_elements (Z, A, Stoich.)
@@ -8,7 +9,7 @@ begin_target
 end_target
 begin_chain
 	InitialBeamEnergy(MeV): 17.19
-	ReactionBeamEnergy(MeV): 0.67
+	ReactionBeamEnergy(MeV): Random
 	begin_step
 		Type: Reaction
 		begin_nuclei

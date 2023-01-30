@@ -83,14 +83,17 @@ namespace AnasenSim {
 		m_decay1Phi = RandomGenerator::GetUniformReal(s_phiMin, s_phiMax);
 		m_residEx = RandomGenerator::GetNormal(m_params.stepParams[0].meanResidualEx, m_params.stepParams[0].sigmaResidualEx);
 		m_decay2Ex = RandomGenerator::GetNormal(m_params.stepParams[1].meanResidualEx, m_params.stepParams[1].sigmaResidualEx);
-		m_beamTheta = RandomGenerator::GetUniformReal(0.0, m_beamStraggling);
+		//m_beamTheta = RandomGenerator::GetUniformReal(0.0, m_beamStraggling);
 		m_beamPhi = RandomGenerator::GetUniformReal(s_phiMin, s_phiMax);
 		if(m_params.sampleBeam)
 		{
 			m_rxnBeamEnergy = RandomGenerator::GetUniformReal(0.0, m_params.initialBeamEnergy);
 			m_rxnPathLength = m_params.target.GetPathLength(m_nuclei[1].Z, m_nuclei[1].A, m_params.initialBeamEnergy, m_rxnBeamEnergy);
 			m_beamStraggling = m_params.target.GetAngularStraggling(m_nuclei[1].Z, m_nuclei[1].A, m_params.initialBeamEnergy, m_rxnPathLength);
+			m_beamTheta = RandomGenerator::GetUniformReal(0.0, m_beamStraggling);
 		}
+		//Testing against Nabin
+		//m_residEx = m_step1.SampleExcitationPhaseSpace(m_rxnBeamEnergy, m_beamTheta, m_beamPhi, m_rxnTheta, m_rxnPhi);
 	}
 
 	void TwoStepSystem::RunSystem()

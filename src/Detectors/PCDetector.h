@@ -12,11 +12,17 @@
 
 namespace AnasenSim {
 
+    struct PCHit
+    {
+        int wireID = -1;
+        ROOT::Math::XYZPoint hit = {0., 0., 0.};
+    };
+
     class PCDetector
     {
     public:
-        static ROOT::Math::XYZPoint AssignPCOriginal(const ROOT::Math::XYZPoint& rxnPoint, double theta, double phi, uint32_t zp);
-        static ROOT::Math::XYZPoint AssignPC(const ROOT::Math::XYZPoint& rxnPoint, double theta, double phi, uint32_t zp);
+        static PCHit AssignPCOriginal(const ROOT::Math::XYZPoint& rxnPoint, double theta, double phi, uint32_t zp);
+        static PCHit AssignPC(const ROOT::Math::XYZPoint& rxnPoint, double theta, double phi, uint32_t zp);
 
     private:
         static constexpr int s_nWires = 24;

@@ -208,10 +208,19 @@ namespace AnasenSim {
 		for(int i=0; i<s_nSX3PerBarrel; i++)
 		{
 			auto result = m_barrel1[i].GetChannelRatio(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi());
-			if(result.front_strip_index != -1) 
+			if(result.front_strip_index != -1 && 
+			   !m_deadMap.IsChannelPairDead(i, result.front_strip_index, result.back_strip_index, DeadChannelMap::DetectorType::Barrel1)) 
 			{
 				nucleus.isDetected = true;
-				nucleus.pcVector = PCDetector::AssignPC(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi(), nucleus.Z);
+				auto pcResult = PCDetector::AssignPC(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi(), nucleus.Z);
+				if(pcResult.wireID == -1 || m_deadMap.IsWireDead(pcResult.wireID))
+				{
+					nucleus.isDetected = false;
+					nucleus.siVector.SetXYZ(0., 0., 0.);
+					nucleus.siliconDetKE = 0.0;
+					return;
+				}
+				nucleus.pcVector = pcResult.hit;
 				nucleus.siVector = m_barrel1[i].GetHitCoordinates(result.front_strip_index, result.front_ratio);
 
 				thetaIncident = std::acos(nucleus.siVector.Dot(m_barrel1[i].GetNormRotated())/nucleus.siVector.R());
@@ -249,10 +258,19 @@ namespace AnasenSim {
 		for(int i=0; i<s_nSX3PerBarrel; i++)
 		{
 			auto result = m_barrel2[i].GetChannelRatio(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi());
-			if(result.front_strip_index != -1) 
+			if(result.front_strip_index != -1 && 
+			   !m_deadMap.IsChannelPairDead(i, result.front_strip_index, result.back_strip_index, DeadChannelMap::DetectorType::Barrel2))  
 			{
 				nucleus.isDetected = true;
-				nucleus.pcVector = PCDetector::AssignPC(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi(), nucleus.Z);
+				auto pcResult = PCDetector::AssignPC(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi(), nucleus.Z);
+				if(pcResult.wireID == -1 || m_deadMap.IsWireDead(pcResult.wireID))
+				{
+					nucleus.isDetected = false;
+					nucleus.siVector.SetXYZ(0., 0., 0.);
+					nucleus.siliconDetKE = 0.0;
+					return;
+				}
+				nucleus.pcVector = pcResult.hit;
 				nucleus.siVector = m_barrel2[i].GetHitCoordinates(result.front_strip_index, result.front_ratio);
 
 				thetaIncident = std::acos(nucleus.siVector.Dot(m_barrel2[i].GetNormRotated())/nucleus.siVector.R());
@@ -292,7 +310,15 @@ namespace AnasenSim {
 			if(result.first != -1) 
 			{
 				nucleus.isDetected = true;
-				nucleus.pcVector = PCDetector::AssignPC(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi(), nucleus.Z);
+				auto pcResult = PCDetector::AssignPC(nucleus.rxnPoint, nucleus.vec4.Theta(), nucleus.vec4.Phi(), nucleus.Z);
+				if(pcResult.wireID == -1 || m_deadMap.IsWireDead(pcResult.wireID))
+				{
+					nucleus.isDetected = false;
+					nucleus.siVector.SetXYZ(0., 0., 0.);
+					nucleus.siliconDetKE = 0.0;
+					return;
+				}
+				nucleus.pcVector = pcResult.hit;
 				nucleus.siVector = m_qqq[i].GetHitCoordinates(result.first, result.second);
 
 				thetaIncident = std::acos(nucleus.siVector.Dot(m_qqq[i].GetNorm())/nucleus.siVector.R());

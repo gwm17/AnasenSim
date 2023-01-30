@@ -10,6 +10,7 @@ Written by G.W. McCann Aug. 2020
 */
 #include "MassLookup.h"
 #include <sstream>
+#include "Utils/UUID.h"
 
 namespace AnasenSim {
 

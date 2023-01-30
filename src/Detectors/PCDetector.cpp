@@ -5,10 +5,10 @@ namespace AnasenSim {
 
     //Works by taking rxn point and assigning PC wire which is closest to rxnPoint. Then z-position is calculated using 
     //projectile theta and phi from wire.
-    ROOT::Math::XYZPoint PCDetector::AssignPCOriginal(const ROOT::Math::XYZPoint& rxnPoint, double theta, double phi, uint32_t zp)
+    PCHit PCDetector::AssignPCOriginal(const ROOT::Math::XYZPoint& rxnPoint, double theta, double phi, uint32_t zp)
     {
-        ASIM_ASSERT(rxnPoint.Rho() < s_wireRadius, "Reaction did not occur within the PC");
-
+        //ASIM_ASSERT(rxnPoint.Rho() < s_wireRadius, "Reaction did not occur within the PC");
+        PCHit result;
         double wirePhi;
         double wirePhiRxn;
         double wireXRxn;
@@ -39,7 +39,7 @@ namespace AnasenSim {
                 minRho = std::sqrt(wireXRxn * wireXRxn - wireYRxn * wireYRxn);
             }
         }
-
+        result.wireID = minWireID;
         double zhit = 0.0;
         if(theta == M_PI/2.0)
             zhit = rxnPoint.Z();
@@ -51,18 +51,20 @@ namespace AnasenSim {
         else
             zhit = RandomGenerator::GetNormal(zhit, s_zSigmaNonProton);
 
-        return ROOT::Math::XYZPoint(s_wireRadius*std::cos(wirePhi), s_wireRadius*std::sin(wirePhi), zhit);
+        result.hit = ROOT::Math::XYZPoint(s_wireRadius*std::cos(wirePhi), s_wireRadius*std::sin(wirePhi), zhit);
+        return result;
     }
 
     //Find point of nearest approach by checking intersection with cylinder formed by pc wires. Then take nearest PC to intersection, keeping z constant
     //This method I think better captures the idea of the PC, plus no for loops
-    ROOT::Math::XYZPoint PCDetector::AssignPC(const ROOT::Math::XYZPoint& rxnPoint, double theta, double phi, uint32_t zp)
+    PCHit PCDetector::AssignPC(const ROOT::Math::XYZPoint& rxnPoint, double theta, double phi, uint32_t zp)
     {
-        ASIM_ASSERT(rxnPoint.Rho() < s_wireRadius, "Reaction did not occur within the PC");
+        PCHit result;
+        //ASIM_ASSERT(rxnPoint.Rho() < s_wireRadius, "Reaction did not occur within the PC");
         //Will neeeever intersect
-        if(theta == 0.0)
+        if(theta == 0.0 || rxnPoint.Rho() > s_wireRadius)
         {
-            return ROOT::Math::XYZPoint();
+            return result;
         }
 
         ROOT::Math::XYZVector particleTraj(std::sin(theta)*std::cos(phi), std::sin(theta)*std::sin(phi), std::cos(theta));
@@ -72,13 +74,13 @@ namespace AnasenSim {
         double c = rxnPoint.Rho() * rxnPoint.Rho() - s_wireRadius * s_wireRadius;
         double radicand = b*b - 4.0 * a * c;
         if(radicand < 0.0)
-            return ROOT::Math::XYZPoint();
+            return result;
         
         double t1 = (-1.0*b + std::sqrt(radicand))/(2.0 * a);
         double t2 = (-1.0*b - std::sqrt(radicand))/(2.0 * a);
         ROOT::Math::XYZPoint intersectionPoint;
         if(t1 < 0.0 && t2 < 0.0)
-            return ROOT::Math::XYZPoint();
+            return result;
         if(t1 < 0.0)
             intersectionPoint = rxnPoint + t2 * particleTraj;
         else
@@ -89,12 +91,13 @@ namespace AnasenSim {
             intersectPhi += 2.0 * M_PI;
         
         double wireFrac = intersectPhi/s_wireDeltaPhi;
-        double nearestWirePhi = std::round(wireFrac) * s_wireDeltaPhi;
+        result.wireID = std::round(wireFrac);
+        double nearestWirePhi = result.wireID * s_wireDeltaPhi;
 
         if(zp == 1)
-            return ROOT::Math::XYZPoint(s_wireRadius * std::cos(nearestWirePhi), s_wireRadius * std::sin(nearestWirePhi), RandomGenerator::GetNormal(intersectionPoint.Z(), s_zSigmaProton));
+            result.hit = ROOT::Math::XYZPoint(s_wireRadius * std::cos(nearestWirePhi), s_wireRadius * std::sin(nearestWirePhi), RandomGenerator::GetNormal(intersectionPoint.Z(), s_zSigmaProton));
         else
-            return ROOT::Math::XYZPoint(s_wireRadius * std::cos(nearestWirePhi), s_wireRadius * std::sin(nearestWirePhi), RandomGenerator::GetNormal(intersectionPoint.Z(), s_zSigmaNonProton));
-
+            result.hit =  ROOT::Math::XYZPoint(s_wireRadius * std::cos(nearestWirePhi), s_wireRadius * std::sin(nearestWirePhi), RandomGenerator::GetNormal(intersectionPoint.Z(), s_zSigmaNonProton));
+        return result;
     }
 }

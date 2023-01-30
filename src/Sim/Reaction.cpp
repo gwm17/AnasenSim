@@ -10,6 +10,7 @@
 #include "SimBase.h"
 
 #include "Math/Boost.h"
+#include "RandomGenerator.h"
 
 namespace AnasenSim {
 
@@ -83,6 +84,34 @@ namespace AnasenSim {
 			return false;
 		else
 			return true;
+	}
+
+	//For use with nabin testing. Q-value is hardcoded.
+	double Reaction::SampleExcitationPhaseSpace(double beamEnergy, double beamTheta, double beamPhi, double ejectThetaCM, double ejectPhiCM)
+	{
+		MassLookup& masses = MassLookup::GetInstance();
+		double Q = masses.FindMass(1, 2) + masses.FindMass(4, 7) - 2.0 * masses.FindMass(2, 4) - masses.FindMass(1, 1);
+		ROOT::Math::PxPyPzEVector targVec(0.0, 0.0, 0.0, m_target->groundStateMass);
+		double beamP = std::sqrt(beamEnergy * (beamEnergy + 2.0 * m_projectile->groundStateMass));
+		double beamE = beamEnergy + m_projectile->groundStateMass;
+		ROOT::Math::PxPyPzEVector projVec(beamP * std::sin(beamTheta) * std::cos(beamPhi),
+										  beamP * std::sin(beamTheta) * std::sin(beamPhi),
+										  beamP * std::cos(beamTheta),
+										  beamE);
+		auto parentVec = targVec + projVec;
+		ROOT::Math::Boost boost(parentVec.BoostToCM());
+		parentVec = boost * parentVec;
+		double ejectKECM = RandomGenerator::GetUniformFraction() * (Q + parentVec.E() - m_target->groundStateMass - m_projectile->groundStateMass);
+		double ejectP = std::sqrt(ejectKECM * (ejectKECM + 2.0 * m_ejectile->groundStateMass));
+		double ejectE = ejectKECM + m_ejectile->groundStateMass;
+		ROOT::Math::PxPyPzEVector ejectVec(ejectP * std::sin(ejectThetaCM) * std::cos(ejectPhiCM),
+										   ejectP * std::sin(ejectThetaCM) * std::sin(ejectPhiCM),
+										   ejectP * std::cos(ejectThetaCM),
+										   ejectE);
+		parentVec = boost.Inverse() * parentVec;
+		ejectVec = boost.Inverse() * ejectVec;
+		auto residVec = parentVec - ejectVec;
+		return residVec.M() - m_residual->groundStateMass;
 	}
 	
 	
